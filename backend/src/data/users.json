@@ -1,0 +1,24 @@
+[
+    {
+        "id": "1",
+        "username": "Ronaldo",
+        "email": "ronaldo@orkut.com",
+        "password": "123",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Ronaldo",
+        "humor": "Animado",
+        "bio": "Dono do clone!",
+        "city": "São Paulo",
+        "country": "Brasil"
+    },
+    {
+        "id": "2",
+        "username": "Maria",
+        "email": "maria@orkut.com",
+        "password": "123",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=Maria",
+        "humor": "Tranquila",
+        "bio": "Apenas testando...",
+        "city": "Rio de Janeiro",
+        "country": "Brasil"
+    }
+]
