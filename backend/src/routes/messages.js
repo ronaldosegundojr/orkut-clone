@@ -76,6 +76,14 @@ router.delete('/with/:targetId', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+router.delete('/all', authMiddleware, async (req, res) => {
+  try {
+    await db.runAsync('UPDATE messages SET deleted_by_sender = 1 WHERE sender_id = ?', [req.user.id]);
+    await db.runAsync('UPDATE messages SET deleted_by_receiver = 1 WHERE receiver_id = ?', [req.user.id]);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 router.delete('/:msgId', authMiddleware, async (req, res) => {
   try {
     const msgId = req.params.msgId;

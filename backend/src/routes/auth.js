@@ -9,7 +9,7 @@ const SECRET = process.env.JWT_SECRET || 'tukro_secret_2026';
 
 router.post('/register', async (req, res) => {
     try {
-        const { fullName, username, email, password, secondaryEmail, birthDate, socialNetworks, city, state, country, preferences } = req.body;
+        const { fullName, username, email, password, secondaryEmail, birthDate, gender, socialNetworks, city, state, country, preferences } = req.body;
         if (!fullName || !username || !email || !password) return res.status(400).json({ error: 'Campos obrigatórios faltando' });
         const existingEmail = await db.getAsync('SELECT id FROM users WHERE email = ?', [email]);
         if (existingEmail) return res.status(409).json({ error: 'Email já cadastrado' });
@@ -17,14 +17,14 @@ router.post('/register', async (req, res) => {
         if (existingUsername) return res.status(409).json({ error: 'Nome de usuário já está em uso' });
         const hash = bcrypt.hashSync(password, 10);
         const id = uuidv4();
-        const detailsObj = { secondaryEmail, birthDate, socialNetworks, state_or_region: state, preferences };
+        const detailsObj = { name: fullName, secondaryEmail, birthDate, gender, socialNetworks, state_or_region: state, preferences };
         const details = JSON.stringify(detailsObj);
 
         // Use user_common.jpg avatar as default
-        await db.runAsync('INSERT INTO users (id, name, username, email, password_hash, avatar, city, country, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [id, fullName, username, email, hash, `/user_common.jpg`, city || '', country || '', details]);
+        await db.runAsync('INSERT INTO users (id, username, email, password_hash, avatar, city, country, details) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [id, username, email, hash, `/user_common.jpg`, city || '', country || '', details]);
         const token = jwt.sign({ id, email }, SECRET, { expiresIn: '7d' });
-        const user = await db.getAsync('SELECT id, name, username, email, avatar, humor, bio, city, country, created_at FROM users WHERE id = ?', [id]);
+        const user = await db.getAsync('SELECT id, username, email, avatar, humor, bio, city, country, created_at FROM users WHERE id = ?', [id]);
         res.json({ token, user });
     } catch (e) {
         res.status(500).json({ error: e.message });

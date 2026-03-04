@@ -31,7 +31,7 @@ export default function Header() {
                 {/* Logo Area (White) */}
                 <div style={{ background: 'white', width: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
                     <Link to="/" style={{ color: '#d12b8f', textDecoration: 'none', fontWeight: 'bold', fontSize: '24px', letterSpacing: '-1px', fontFamily: 'Arial, sans-serif' }}>
-                        orkut<span style={{ fontSize: '12px', color: '#c9d7f1' }}>.com</span>
+                        tukro<span style={{ fontSize: '12px', color: '#c9d7f1' }}>.com</span>
                     </Link>
                 </div>
 
@@ -53,7 +53,7 @@ export default function Header() {
                             <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #7a93b7', padding: '2px' }}>
                                 <input
                                     type="text"
-                                    placeholder="pesquisa do orkut"
+                                    placeholder="pesquisa do tukro"
                                     value={q}
                                     onChange={handleSearch}
                                     onBlur={() => setTimeout(() => setShowResults(false), 200)}
@@ -67,11 +67,11 @@ export default function Header() {
                             {showResults && results.length > 0 && (
                                 <div className="search-results">
                                     {results.map(r => (
-                                        <Link to={`/profile/${r.username}`} key={r.id} className="search-result-item" style={{ color: 'inherit' }}>
-                                            <img src={r.avatar} alt={r.username} className="avatar avatar-sm" style={{ width: '30px', height: '30px', borderRadius: 0, border: '1px solid var(--gray-border)' }} />
+                                        <Link to={r.type === 'user' ? `/profile/${r.name}` : `/communities/${r.id}`} key={r.id + r.type} className="search-result-item" style={{ color: 'inherit' }}>
+                                            <img src={r.avatar} alt={r.name} className="avatar avatar-sm" style={{ width: '30px', height: '30px', borderRadius: 0, border: '1px solid var(--gray-border)' }} />
                                             <div>
-                                                <div style={{ fontWeight: 'bold', fontSize: '11px' }}>{r.username}</div>
-                                                <div style={{ fontSize: '10px', color: '#666' }}>{r.city}</div>
+                                                <div style={{ fontWeight: 'bold', fontSize: '11px' }}>{r.name} {r.type === 'community' && '(Comunidade)'}</div>
+                                                <div style={{ fontSize: '10px', color: '#666' }}>{r.city ? `${r.city}, ` : ''}{r.country}</div>
                                             </div>
                                         </Link>
                                     ))}

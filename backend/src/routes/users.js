@@ -5,12 +5,27 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-// Search users
+// Search users and communities
 router.get('/search', authMiddleware, async (req, res) => {
     try {
         const { q } = req.query;
-        const users = await db.allAsync('SELECT id, username, email, avatar, humor, city, country FROM users WHERE username LIKE ? OR email LIKE ? LIMIT 20', [`%${q}%`, `%${q}%`]);
-        res.json(users);
+        const searchTerm = `%${q}%`;
+
+        const users = await db.allAsync(`
+            SELECT 'user' as type, id, username as name, avatar, humor, city, country 
+            FROM users 
+            WHERE username LIKE ? OR email LIKE ? OR city LIKE ? OR details LIKE ?
+            LIMIT 15
+        `, [searchTerm, searchTerm, searchTerm, searchTerm]);
+
+        const communities = await db.allAsync(`
+            SELECT 'community' as type, id, name, image as avatar, description as humor, city, country 
+            FROM communities 
+            WHERE name LIKE ? OR description LIKE ? OR city LIKE ?
+            LIMIT 15
+        `, [searchTerm, searchTerm, searchTerm]);
+
+        res.json([...users, ...communities]);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

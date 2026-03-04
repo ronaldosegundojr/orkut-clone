@@ -26,7 +26,10 @@ export function StatusSelector({ status, onStatusChange }) {
     return (
         <div ref={menuRef} style={{ position: 'relative' }}>
             <div
-                onClick={() => setShowMenu(!showMenu)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMenu(!showMenu);
+                }}
                 style={{
                     cursor: 'pointer',
                     display: 'flex',
@@ -45,7 +48,7 @@ export function StatusSelector({ status, onStatusChange }) {
                 }} />
                 <span style={{ fontSize: '11px' }}>▼</span>
             </div>
-            
+
             {showMenu && (
                 <div style={{
                     position: 'absolute',
@@ -59,9 +62,9 @@ export function StatusSelector({ status, onStatusChange }) {
                     minWidth: '160px',
                     marginBottom: '8px'
                 }}>
-                    <div style={{ 
-                        padding: '4px 8px 8px', 
-                        fontSize: '11px', 
+                    <div style={{
+                        padding: '4px 8px 8px',
+                        fontSize: '11px',
                         color: '#666',
                         borderBottom: '1px solid #eee',
                         marginBottom: '4px'
@@ -71,8 +74,8 @@ export function StatusSelector({ status, onStatusChange }) {
                     {STATUS_OPTIONS.map(opt => (
                         <div
                             key={opt.value}
-                            onClick={() => { 
-                                onStatusChange(opt.value); 
+                            onClick={() => {
+                                onStatusChange(opt.value);
                                 setShowMenu(false);
                             }}
                             style={{
@@ -100,8 +103,8 @@ export function StatusSelector({ status, onStatusChange }) {
                                 flexShrink: 0
                             }} />
                             <div>
-                                <div style={{ 
-                                    fontSize: '12px', 
+                                <div style={{
+                                    fontSize: '12px',
                                     color: status === opt.value ? '#1155cc' : '#333',
                                     fontWeight: status === opt.value ? '600' : '400'
                                 }}>

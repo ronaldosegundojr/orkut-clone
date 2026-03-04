@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/client';
 import { StatusSelector, STATUS_OPTIONS } from './StatusSelector';
+import { Settings, Trash2, ShieldOff, MessageSquare } from 'lucide-react';
 
 const EMOJI_CATEGORIES = {
     '😀': ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '☺️', '😚', '😙', '🥲', '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔', '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥', '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕'],
@@ -322,16 +323,16 @@ function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
                         marginBottom: '8px'
                     }}>
                         {msg.type === 'gif' || isGifUrl(msg.body) ? (
-                            <img 
-                                src={msg.body} 
-                                alt="gif" 
-                                style={{ 
-                                    maxWidth: '200px', 
+                            <img
+                                src={msg.body}
+                                alt="gif"
+                                style={{
+                                    maxWidth: '200px',
                                     maxHeight: '200px',
                                     borderRadius: '12px',
                                     objectFit: 'contain',
                                     background: '#fff'
-                                }} 
+                                }}
                                 loading="lazy"
                             />
                         ) : (
@@ -368,7 +369,7 @@ function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
                         </div>
                     </div>
                 )}
-                
+
                 {showGifPicker && (
                     <div ref={gifPickerRef} style={{ position: 'absolute', bottom: '50px', left: '10px', background: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 10, width: '300px', maxHeight: '280px', overflow: 'auto' }}>
                         <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
@@ -378,19 +379,19 @@ function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
                         </div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
                             {GIF_CATEGORIES[activeGifCategory].map((gif, i) => (
-                                <img 
-                                    key={i} 
-                                    src={gif} 
-                                    alt="gif" 
-                                    onClick={() => addGif(gif)} 
-                                    style={{ 
-                                        width: '85px', 
-                                        height: '85px', 
-                                        objectFit: 'cover', 
-                                        borderRadius: '4px', 
+                                <img
+                                    key={i}
+                                    src={gif}
+                                    alt="gif"
+                                    onClick={() => addGif(gif)}
+                                    style={{
+                                        width: '85px',
+                                        height: '85px',
+                                        objectFit: 'cover',
+                                        borderRadius: '4px',
                                         cursor: 'pointer',
                                         background: '#f0f0f0'
-                                    }} 
+                                    }}
                                     loading="lazy"
                                 />
                             ))}
@@ -423,7 +424,10 @@ export default function ChatOnline() {
     const [isMainOpen, setIsMainOpen] = useState(true);
     const [openChats, setOpenChats] = useState({});
     const [userStatus, setUserStatus] = useState('online');
+    const [showSettings, setShowSettings] = useState(false);
+    const [isChatDisabled, setIsChatDisabled] = useState(false);
     const navigate = useNavigate();
+    const settingsRef = useRef(null);
     const inactivityTimer = useRef(null);
 
     const STATUS_OPTIONS = [
@@ -444,13 +448,23 @@ export default function ChatOnline() {
     };
 
     useEffect(() => {
-        if (!currentUser) return;
+        const handleClickOutside = (event) => {
+            if (settingsRef.current && !settingsRef.current.contains(event.target)) {
+                setShowSettings(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        if (!currentUser || isChatDisabled) return;
 
         const events = ['mousedown', 'keydown', 'scroll', 'touchstart'];
         events.forEach(event => {
             document.addEventListener(event, resetInactivityTimer);
         });
-        
+
         resetInactivityTimer();
 
         return () => {
@@ -463,12 +477,12 @@ export default function ChatOnline() {
 
     useEffect(() => {
         if (!currentUser) return;
-        
+
         const fetchData = async () => {
             try {
                 const convRes = await api.get('/messages/conversations');
                 setConversations(convRes.data.slice(0, 10));
-                
+
                 const friendsRes = await api.get(`/friends/${currentUser.id}`);
                 const uniqueFriends = [];
                 const seenIds = new Set();
@@ -483,7 +497,7 @@ export default function ChatOnline() {
                 console.error('Erro chat', e);
             }
         };
-        
+
         fetchData();
         const interval = setInterval(fetchData, 30000);
         return () => clearInterval(interval);
@@ -513,6 +527,34 @@ export default function ChatOnline() {
         navigate(`/messages?userId=${friendId}`);
     };
 
+    const clearAllChats = async () => {
+        if (!window.confirm('Tem certeza que deseja limpar todo o histórico de conversas?')) return;
+        try {
+            await api.delete('/messages/all');
+            setConversations([]);
+            setOpenChats({});
+            setShowSettings(false);
+            alert('Histórico de conversas limpo com sucesso.');
+        } catch (e) {
+            console.error(e);
+            alert('Erro ao limpar conversas.');
+        }
+    };
+
+    if (isChatDisabled) {
+        return (
+            <div style={{ position: 'fixed', right: '20px', bottom: '20px', zIndex: 1000 }}>
+                <div
+                    onClick={() => setIsChatDisabled(false)}
+                    style={{ background: '#1155cc', color: 'white', padding: '10px', borderRadius: '50%', cursor: 'pointer', boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}
+                    title="Ativar Chat"
+                >
+                    <MessageSquare size={24} />
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div style={{ position: 'fixed', right: '20px', bottom: '20px', zIndex: 1000, display: 'flex', flexDirection: 'row-reverse', alignItems: 'flex-end', gap: '10px' }}>
             <div style={{
@@ -523,7 +565,7 @@ export default function ChatOnline() {
                 border: '1px solid #ddd',
                 overflow: 'hidden'
             }}>
-                <div 
+                <div
                     style={{
                         padding: '12px',
                         background: '#1155cc',
@@ -538,20 +580,52 @@ export default function ChatOnline() {
                     onClick={() => setIsMainOpen(!isMainOpen)}
                 >
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <StatusSelector 
-                            status={userStatus} 
+                        <StatusSelector
+                            status={userStatus}
                             onStatusChange={(newStatus) => {
                                 setUserStatus(newStatus);
                                 if (newStatus !== 'invisible') {
                                     resetInactivityTimer();
                                 }
-                            }} 
+                            }}
                         />
                         Amigos ({friends.length})
                     </span>
-                    <span>{isMainOpen ? '▼' : '▲'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ position: 'relative' }} ref={settingsRef}>
+                            <Settings
+                                size={16}
+                                style={{ cursor: 'pointer' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowSettings(!showSettings);
+                                }}
+                            />
+                            {showSettings && (
+                                <div style={{ position: 'absolute', bottom: '100%', right: 0, background: 'white', border: '1px solid #ddd', borderRadius: '4px', padding: '4px', width: '150px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)', color: '#333', fontSize: '11px', fontWeight: 'normal', marginBottom: '10px' }}>
+                                    <div
+                                        style={{ padding: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                        onClick={(e) => { e.stopPropagation(); setIsChatDisabled(true); setShowSettings(false); }}
+                                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                    >
+                                        <ShieldOff size={14} /> Desativar chat
+                                    </div>
+                                    <div
+                                        style={{ padding: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                        onClick={(e) => { e.stopPropagation(); clearAllChats(); }}
+                                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                                        onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                    >
+                                        <Trash2 size={14} /> Limpar todos os chats
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <span>{isMainOpen ? '▼' : '▲'}</span>
+                    </div>
                 </div>
-                
+
                 {isMainOpen && (
                     <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
                         {friends.length === 0 && conversations.length === 0 ? (
@@ -566,7 +640,7 @@ export default function ChatOnline() {
                                     </div>
                                 )}
                                 {friends.map(u => (
-                                    <div 
+                                    <div
                                         key={u.id}
                                         onClick={() => openChat(u, 'medium')}
                                         style={{
@@ -580,8 +654,8 @@ export default function ChatOnline() {
                                         }}
                                     >
                                         <div style={{ position: 'relative' }}>
-                                            <img 
-                                                src={u.avatar} 
+                                            <img
+                                                src={u.avatar}
                                                 alt={u.username}
                                                 style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
                                             />
@@ -601,14 +675,14 @@ export default function ChatOnline() {
                                         </div>
                                     </div>
                                 ))}
-                                
+
                                 {conversations.length > 0 && (
                                     <div style={{ padding: '8px 12px', fontSize: '10px', color: '#888', borderBottom: '1px solid #eee', borderTop: '1px solid #eee' }}>
                                         RECENTES
                                     </div>
                                 )}
                                 {conversations.filter(c => !friends.find(f => f.id === c.other_id)).map(c => (
-                                    <div 
+                                    <div
                                         key={c.other_id}
                                         onClick={() => openChat({ id: c.other_id, username: c.other_name, avatar: c.other_avatar }, 'medium')}
                                         style={{
@@ -621,8 +695,8 @@ export default function ChatOnline() {
                                             borderBottom: '1px solid #f5f5f5'
                                         }}
                                     >
-                                        <img 
-                                            src={c.other_avatar} 
+                                        <img
+                                            src={c.other_avatar}
                                             alt={c.other_name}
                                             style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }}
                                         />

@@ -9,11 +9,11 @@ export default function Profile() {
     const { username } = useParams();
     const navigate = useNavigate();
     const { user: currentUser, updateUser } = useAuth();
-    
+
     if (!currentUser) {
         return <div className="loading">Carregando...</div>;
     }
-    
+
     const profileUsername = username || currentUser.username;
     const isMe = profileUsername === currentUser.username;
 
@@ -38,7 +38,7 @@ export default function Profile() {
             setProfile(userData);
             setProfileId(userData.id);
             setNewHumor(userData.humor);
-            
+
             const [friendsRes, commRes, testimonialRes] = await Promise.all([
                 api.get(`/friends/${userData.id}`),
                 api.get(`/communities/user/${userData.id}`),
@@ -162,10 +162,10 @@ export default function Profile() {
                                 {nameEdit && isMe ? (
                                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                         <h1 style={{ fontSize: '20px', color: '#000', fontWeight: 'normal', fontFamily: 'Arial, sans-serif' }}>» </h1>
-                                        <input 
-                                            type="text" 
-                                            value={newName} 
-                                            onChange={e => setNewName(e.target.value)} 
+                                        <input
+                                            type="text"
+                                            value={newName}
+                                            onChange={e => setNewName(e.target.value)}
                                             style={{ padding: '2px 4px', fontSize: '18px' }}
                                             autoFocus
                                         />
@@ -173,7 +173,7 @@ export default function Profile() {
                                         <button className="btn btn-gray btn-sm" onClick={() => setNameEdit(false)}>x</button>
                                     </div>
                                 ) : (
-                                    <h1 
+                                    <h1
                                         style={{ fontSize: '20px', color: '#000', fontWeight: 'normal', fontFamily: 'Arial, sans-serif', cursor: isMe ? 'pointer' : 'default' }}
                                         onClick={() => { if (isMe) { setNewName(profile.username); setNameEdit(true); } }}
                                         title={isMe ? 'Clique para editar' : ''}
@@ -184,7 +184,7 @@ export default function Profile() {
                             </div>
 
                             {/* Humor text line (bordered box) - click to edit */}
-                            <div 
+                            <div
                                 style={{
                                     border: '1px solid #e5e5e5',
                                     padding: '6px 8px',
@@ -271,12 +271,12 @@ export default function Profile() {
                                         {Array.from({ length: 3 }).map((_, i) => (
                                             <span key={i} style={{ opacity: i < (profile.stats?.sexy || 0) ? 1 : 0.2 }}>❤️</span>
                                         ))}
+                                    </div>
+                                </div>
+                            </div>
+
+
                         </div>
-                    </div>
-                </div>
-
-
-            </div>
 
                         <div style={{ borderTop: '2px solid #e4edf5' }}></div>
 
@@ -329,16 +329,13 @@ export default function Profile() {
                                     ]
                                 },
                                 {
-                                    label: 'interesses:', fields: [
-                                        { key: 'here_for', label: 'estou aqui para:' },
-                                        { key: 'passions', label: 'paixões:' },
-                                        { key: 'sports', label: 'esportes:' },
-                                        { key: 'activities', label: 'atividades:' },
-                                        { key: 'books', label: 'livros:' },
-                                        { key: 'music', label: 'músicas:' },
-                                        { key: 'tv_shows', label: 'programas de tv:' },
-                                        { key: 'movies', label: 'filmes:' },
-                                        { key: 'cuisines', label: 'comidas:' }
+                                    label: 'interesses e hobbies:', fields: [
+                                        { key: 'fav_movies', label: 'filmes favoritos:' },
+                                        { key: 'fav_series', label: 'séries favoritas:' },
+                                        { key: 'fav_music', label: 'músicas favoritas:' },
+                                        { key: 'fav_bands', label: 'bandas/grupos musicais favoritos:' },
+                                        { key: 'hobbies', label: 'hobbies:' },
+                                        { key: 'like_to', label: 'gosto de:' }
                                     ]
                                 }
                             ].map((section, idx) => (
@@ -370,10 +367,10 @@ export default function Profile() {
                 </div>
 
                 {/* Depoimentos Section - Below the details */}
-                <Testimonials 
-                    profileId={profileId} 
-                    testimonials={testimonials} 
-                    isFriend={isFriend} 
+                <Testimonials
+                    profileId={profileId}
+                    testimonials={testimonials}
+                    isFriend={isFriend}
                 />
             </div>
 
