@@ -6,7 +6,7 @@ import UserCard from '../../components/UserCard';
 import Testimonials from '../../components/Testimonials';
 
 export default function Profile() {
-    const { id } = useParams();
+    const { username } = useParams();
     const navigate = useNavigate();
     const { user: currentUser, updateUser } = useAuth();
     
@@ -14,10 +14,11 @@ export default function Profile() {
         return <div className="loading">Carregando...</div>;
     }
     
-    const profileId = id || currentUser.id;
-    const isMe = profileId === currentUser.id;
+    const profileUsername = username || currentUser.username;
+    const isMe = profileUsername === currentUser.username;
 
     const [profile, setProfile] = useState(null);
+    const [profileId, setProfileId] = useState(null);
     const [loading, setLoading] = useState(true);
     const [humorEdit, setHumorEdit] = useState(false);
     const [newHumor, setNewHumor] = useState('');
@@ -30,16 +31,19 @@ export default function Profile() {
     const [testimonials, setTestimonials] = useState([]);
 
     const loadProfile = async () => {
-        if (!profileId) return;
+        if (!profileUsername) return;
         try {
-            const [profileRes, friendsRes, commRes, testimonialRes] = await Promise.all([
-                api.get(`/users/${profileId}`),
-                api.get(`/friends/${profileId}`),
-                api.get(`/communities/user/${profileId}`),
-                api.get(`/testimonials/user/${profileId}`)
+            const profileRes = await api.get(`/users/${profileUsername}`);
+            const userData = profileRes.data;
+            setProfile(userData);
+            setProfileId(userData.id);
+            setNewHumor(userData.humor);
+            
+            const [friendsRes, commRes, testimonialRes] = await Promise.all([
+                api.get(`/friends/${userData.id}`),
+                api.get(`/communities/user/${userData.id}`),
+                api.get(`/testimonials/user/${userData.id}`)
             ]);
-            setProfile(profileRes.data);
-            setNewHumor(profileRes.data.humor);
             setFriends(friendsRes.data.slice(0, 9));
             setCommunities(commRes.data.slice(0, 9));
             setTestimonials(testimonialRes.data);
@@ -53,7 +57,7 @@ export default function Profile() {
     useEffect(() => {
         setLoading(true);
         loadProfile();
-    }, [profileId]);
+    }, [profileUsername]);
 
     useEffect(() => {
         if (profile) {
@@ -118,7 +122,7 @@ export default function Profile() {
         }
     };
 
-    const isFriend = profile?.friendship || friends.some(f => f.id === currentUser.id);
+    const isFriend = profile?.friendship || friends.some(f => f.username === currentUser.username);
 
     if (loading) return <div className="loading">Carregando Tukro...</div>;
     if (!profile) return <div className="empty-state">Carregando perfil...</div>;
@@ -137,8 +141,8 @@ export default function Profile() {
                             {profile.friendship?.status === 'pending' && (
                                 <button className="btn btn-gray btn-full" disabled>Solicitação enviada</button>
                             )}
-                            <Link to={`/scraps?to=${profile.id}`} className="btn btn-outline btn-full">Deixar recado</Link>
-                            <Link to={`/messages?userId=${profile.id}`} className="btn btn-outline btn-full">Enviar mensagem</Link>
+                            <Link to={`/scraps?to=${profile.username}`} className="btn btn-outline btn-full">Deixar recado</Link>
+                            <Link to={`/messages?userId=${profile.username}`} className="btn btn-outline btn-full">Enviar mensagem</Link>
 
                             <button className={`btn ${profile.isFan ? 'btn-gray' : 'btn-outline'} btn-full`} onClick={() => handleAction(profile.isFan ? 'unfan' : 'fan')}>
                                 {profile.isFan ? 'Deixar de ser Fã' : 'Virar Fã (♥)'}
@@ -382,7 +386,7 @@ export default function Profile() {
                     <div className="card-body" style={{ padding: '8px' }}>
                         <div className="friends-grid-sidebar">
                             {friends.map(f => (
-                                <Link key={f.friendship_id || f.id} to={`/profile/${f.id}`} className="friend-item-sidebar" title={f.username}>
+                                <Link key={f.friendship_id || f.id} to={`/profile/${f.username}`} className="friend-item-sidebar" title={f.username}>
                                     <img src={f.avatar} alt={f.username} />
                                     <span>{f.username.split(' ')[0]}</span>
                                 </Link>

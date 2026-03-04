@@ -39,14 +39,14 @@ export default function CommunityMembers() {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '15px' }}>
                         {members.map(m => (
                             <div key={m.id} style={{ textAlign: 'center', padding: '10px', border: '1px solid #eee', borderRadius: '8px' }}>
-                                <Link to={`/profile/${m.id}`}>
+                                <Link to={`/profile/${m.username}`}>
                                     <img 
                                         src={m.avatar} 
                                         alt={m.username} 
                                         style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', marginBottom: '8px' }} 
                                     />
                                 </Link>
-                                <Link to={`/profile/${m.id}`} style={{ color: '#1155cc', fontSize: '12px', fontWeight: 'bold', display: 'block' }}>
+                                <Link to={`/profile/${m.username}`} style={{ color: '#1155cc', fontSize: '12px', fontWeight: 'bold', display: 'block' }}>
                                     {m.username}
                                 </Link>
                                 {m.role === 'admin' && (

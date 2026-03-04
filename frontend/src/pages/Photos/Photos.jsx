@@ -4,9 +4,9 @@ import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
 
 export default function Photos() {
-    const { userId } = useParams();
+    const { username } = useParams();
     const { user } = useAuth();
-    const targetId = userId || user.id;
+    const targetParam = username || user.username;
 
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,8 +17,8 @@ export default function Photos() {
     const load = async () => {
         try {
             const [photoRes, userRes] = await Promise.all([
-                api.get(`/photos/user/${targetId}`),
-                api.get(`/users/${targetId}`)
+                api.get(`/photos/user/${targetParam}`),
+                api.get(`/users/${targetParam}`)
             ]);
             setPhotos(photoRes.data);
             setTargetUser(userRes.data);
@@ -26,7 +26,7 @@ export default function Photos() {
         finally { setLoading(false); }
     };
 
-    useEffect(() => { load(); }, [targetId]);
+    useEffect(() => { load(); }, [targetParam]);
 
     const handleAdd = async (e) => {
         e.preventDefault();

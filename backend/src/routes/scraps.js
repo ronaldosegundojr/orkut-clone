@@ -5,13 +5,23 @@ const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
-router.get('/:userId', authMiddleware, async (req, res) => {
+router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
+    const { userIdOrUsername } = req.params;
+    let targetId = userIdOrUsername;
+    
+    // Check if it's a username instead of id
+    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
+      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+      targetId = user.id;
+    }
+    
     const scraps = await db.allAsync(`
-      SELECT s.*, u.username as author_name, u.avatar as author_avatar
+      SELECT s.*, u.username as author_name, u.avatar as author_avatar, u.username as author_username
       FROM scraps s JOIN users u ON u.id = s.author_id
       WHERE s.target_id = ? ORDER BY s.created_at DESC LIMIT 50
-    `, [req.params.userId]);
+    `, [targetId]);
     res.json(scraps);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

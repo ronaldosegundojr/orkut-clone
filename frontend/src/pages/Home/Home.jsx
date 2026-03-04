@@ -20,11 +20,11 @@ export default function Home() {
         const loadHomeData = async () => {
             try {
                 const [userRes, scrapsRes, friendsRes, commRes, suggRes] = await Promise.all([
-                    api.get(`/users/${user.id}`),
-                    api.get(`/scraps/${user.id}`),
-                    api.get(`/friends/${user.id}`),
+                    api.get(`/users/${user.username}`),
+                    api.get(`/scraps/${user.username}`),
+                    api.get(`/friends/${user.username}`),
                     api.get('/communities/mine'),
-                    api.get(`/friends/suggestions/${user.id}`)
+                    api.get(`/friends/suggestions/${user.username}`)
                 ]);
                 setStats(userRes.data.stats);
                 setRecentScraps(scrapsRes.data.slice(0, 5));
@@ -36,16 +36,16 @@ export default function Home() {
             }
         };
         loadHomeData();
-    }, [user.id]);
+    }, [user.username]);
 
     useEffect(() => {
         const loadUpdates = async () => {
             try {
-                const friendsRes = await api.get(`/friends/${user.id}`);
+                const friendsRes = await api.get(`/friends/${user.username}`);
                 const friendIds = friendsRes.data.map(f => f.id);
                 
                 const [scrapsRes, photosRes, videosRes] = await Promise.all([
-                    api.get(`/scraps/${user.id}`),
+                    api.get(`/scraps/${user.username}`),
                     api.get(`/photos`),
                     api.get(`/videos`)
                 ]);
@@ -120,7 +120,7 @@ export default function Home() {
                                 <div key={t.id} style={{ padding: '10px', borderBottom: '1px solid #eee', marginBottom: '8px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                                         <img src={t.author_avatar} alt={t.author_name} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-                                        <Link to={`/profile/${t.author_id}`} style={{ fontWeight: 'bold', fontSize: '13px' }}>{t.author_name}</Link>
+                                        <Link to={`/profile/${t.author_username}`} style={{ fontWeight: 'bold', fontSize: '13px' }}>{t.author_name}</Link>
                                     </div>
                                     <p style={{ fontSize: '12px', color: '#333', margin: '0 0 8px 0' }}>{t.text}</p>
                                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -142,7 +142,7 @@ export default function Home() {
                         <div className="user-grid">
                             {suggestions.map(s => (
                                 <div key={s.id} className="user-card-mini">
-                                    <Link to={`/profile/${s.id}`}>
+                                    <Link to={`/profile/${s.username}`}>
                                         <img src={s.avatar} alt={s.username} className="avatar avatar-sm" />
                                         <div className="name">{s.username}</div>
                                     </Link>
@@ -171,7 +171,7 @@ export default function Home() {
                                             <img src={update.author_avatar} alt={update.author_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
                                             <div>
                                                 <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${update.author_id}`} style={{ fontWeight: 'bold' }}>{update.author_name}</Link>
+                                                    <Link to={`/profile/${update.author_username || update.author_id}`} style={{ fontWeight: 'bold' }}>{update.author_name}</Link>
                                                     {' '}enviou um recado
                                                 </div>
                                                 <div style={{ fontSize: '13px', color: '#333', marginTop: '4px' }}>{update.text?.substring(0, 100)}...</div>
@@ -184,7 +184,7 @@ export default function Home() {
                                             <img src={update.owner_avatar} alt={update.owner_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
                                             <div>
                                                 <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${update.owner_id}`} style={{ fontWeight: 'bold' }}>{update.owner_name}</Link>
+                                                    <Link to={`/profile/${update.owner_username || update.owner_id}`} style={{ fontWeight: 'bold' }}>{update.owner_name}</Link>
                                                     {' '}publicou uma foto
                                                 </div>
                                                 <img src={update.url} alt={update.caption} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '4px', marginTop: '4px' }} />
@@ -197,7 +197,7 @@ export default function Home() {
                                             <img src={update.owner_avatar} alt={update.owner_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
                                             <div>
                                                 <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${update.owner_id}`} style={{ fontWeight: 'bold' }}>{update.owner_name}</Link>
+                                                    <Link to={`/profile/${update.owner_username || update.owner_id}`} style={{ fontWeight: 'bold' }}>{update.owner_name}</Link>
                                                     {' '}compartilhou um vídeo
                                                 </div>
                                                 <div style={{ fontSize: '13px', color: '#1155cc', marginTop: '4px' }}>🎬 {update.title}</div>
@@ -259,7 +259,7 @@ export default function Home() {
                         </div>
                         <div className="friends-grid-sidebar">
                             {friends.map(f => (
-                                <Link key={f.id} to={`/profile/${f.id}`} className="friend-item-sidebar" title={f.username}>
+                                <Link key={f.id} to={`/profile/${f.username}`} className="friend-item-sidebar" title={f.username}>
                                     <img src={f.avatar} alt={f.username} />
                                     <span>{f.username.split(' ')[0]}</span>
                                 </Link>

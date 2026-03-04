@@ -33,15 +33,24 @@ router.get('/pending', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/user/:userId', authMiddleware, async (req, res) => {
+router.get('/user/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
+    const { userIdOrUsername } = req.params;
+    let userId = userIdOrUsername;
+    
+    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
+      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = user.id;
+    }
+    
     const testimonials = await db.allAsync(`
-      SELECT t.*, u.username as author_name, u.avatar as author_avatar 
+      SELECT t.*, u.username as author_name, u.avatar as author_avatar, u.username as author_username
       FROM testimonials t 
       JOIN users u ON u.id = t.author_id 
       WHERE t.target_id = ? AND t.status = 'approved'
       ORDER BY t.created_at DESC
-    `, [req.params.userId]);
+    `, [userId]);
     res.json(testimonials);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

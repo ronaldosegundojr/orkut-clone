@@ -15,33 +15,39 @@ router.get('/search', authMiddleware, async (req, res) => {
 });
 
 // Get user profile
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get('/:idOrUsername', authMiddleware, async (req, res) => {
     try {
-        const user = await db.getAsync('SELECT * FROM users WHERE id = ?', [req.params.id]);
+        const { idOrUsername } = req.params;
+        let user = await db.getAsync('SELECT * FROM users WHERE id = ?', [idOrUsername]);
+        if (!user) {
+            user = await db.getAsync('SELECT * FROM users WHERE username = ?', [idOrUsername]);
+        }
         if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-        if (req.user.id !== req.params.id) {
-            const recent = await db.getAsync('SELECT id FROM profile_views WHERE profile_id = ? AND viewer_id = ? AND viewed_at > datetime("now", "-1 hour")', [req.params.id, req.user.id]);
-            if (!recent) await db.runAsync('INSERT INTO profile_views (id, profile_id, viewer_id) VALUES (?, ?, ?)', [uuidv4(), req.params.id, req.user.id]);
+        const profileId = user.id;
+
+        if (req.user.id !== profileId) {
+            const recent = await db.getAsync('SELECT id FROM profile_views WHERE profile_id = ? AND viewer_id = ? AND viewed_at > datetime("now", "-1 hour")', [profileId, req.user.id]);
+            if (!recent) await db.runAsync('INSERT INTO profile_views (id, profile_id, viewer_id) VALUES (?, ?, ?)', [uuidv4(), profileId, req.user.id]);
         }
 
         const [viewR, scrapR, photoR, videoR, fanR, friendR, votesR] = await Promise.all([
-            db.getAsync('SELECT COUNT(*) as c FROM profile_views WHERE profile_id = ?', [req.params.id]),
-            db.getAsync('SELECT COUNT(*) as c FROM scraps WHERE target_id = ?', [req.params.id]),
-            db.getAsync('SELECT COUNT(*) as c FROM photos WHERE owner_id = ?', [req.params.id]),
-            db.getAsync('SELECT COUNT(*) as c FROM videos WHERE owner_id = ?', [req.params.id]),
-            db.getAsync('SELECT COUNT(*) as c FROM fans WHERE user_id = ?', [req.params.id]),
-            db.getAsync('SELECT COUNT(*) as c FROM friends WHERE (user_id = ? OR friend_id = ?) AND status = "accepted"', [req.params.id, req.params.id]),
-            db.allAsync('SELECT type, COUNT(*) as c FROM user_votes WHERE target_id = ? GROUP BY type', [req.params.id])
+            db.getAsync('SELECT COUNT(*) as c FROM profile_views WHERE profile_id = ?', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM scraps WHERE target_id = ?', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM photos WHERE owner_id = ?', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM videos WHERE owner_id = ?', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM fans WHERE user_id = ?', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM friends WHERE (user_id = ? OR friend_id = ?) AND status = "accepted"', [profileId, profileId]),
+            db.allAsync('SELECT type, COUNT(*) as c FROM user_votes WHERE target_id = ? GROUP BY type', [profileId])
         ]);
 
         const votes = { trusty: 0, cool: 0, sexy: 0 };
         votesR.forEach(r => { if (votes[r.type] !== undefined) votes[r.type] = r.c; });
 
         const [isFan, friendship, visitors] = await Promise.all([
-            db.getAsync('SELECT id FROM fans WHERE user_id = ? AND fan_id = ?', [req.params.id, req.user.id]),
-            db.getAsync('SELECT * FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', [req.user.id, req.params.id, req.params.id, req.user.id]),
-            db.allAsync('SELECT DISTINCT u.id, u.username, u.avatar, pv.viewed_at FROM profile_views pv JOIN users u ON u.id = pv.viewer_id WHERE pv.profile_id = ? ORDER BY pv.viewed_at DESC LIMIT 10', [req.params.id]),
+            db.getAsync('SELECT id FROM fans WHERE user_id = ? AND fan_id = ?', [profileId, req.user.id]),
+            db.getAsync('SELECT * FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', [req.user.id, profileId, profileId, req.user.id]),
+            db.allAsync('SELECT DISTINCT u.id, u.username, u.avatar, pv.viewed_at FROM profile_views pv JOIN users u ON u.id = pv.viewer_id WHERE pv.profile_id = ? ORDER BY pv.viewed_at DESC LIMIT 10', [profileId]),
         ]);
 
         const { password_hash, ...safeUser } = user;

@@ -36,7 +36,7 @@ export default function Fans() {
             <div className="card-body">
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '15px' }}>
                     {fans.map(f => (
-                        <Link key={f.id} to={`/profile/${f.id}`} style={{ textDecoration: 'none', textAlign: 'center' }}>
+                        <Link key={f.id} to={`/profile/${f.username}`} style={{ textDecoration: 'none', textAlign: 'center' }}>
                             <img src={f.avatar} alt={f.username} style={{ width: '80px', height: '80px', borderRadius: '4px', objectFit: 'cover', border: '1px solid #c9d7f1' }} />
                             <div style={{ fontSize: '11px', color: '#1155cc', marginTop: '4px' }}>{f.username}</div>
                         </Link>

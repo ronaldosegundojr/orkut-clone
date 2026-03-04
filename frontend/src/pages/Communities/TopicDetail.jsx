@@ -50,7 +50,7 @@ export default function TopicDetail() {
                 {/* Original Post */}
                 <div style={{ display: 'flex', gap: '15px', paddingBottom: '15px', borderBottom: '2px solid var(--pink-light)', marginBottom: '15px' }}>
                     <div style={{ width: '80px', textAlign: 'center', flexShrink: 0 }}>
-                        <Link to={`/profile/${topic.author_id}`}>
+                        <Link to={`/profile/${topic.author_username}`}>
                             <img src={topic.author_avatar} alt="Author" className="avatar avatar-md" style={{ display: 'block', margin: '0 auto' }} />
                             <div style={{ fontSize: '10px', marginTop: '4px', wordBreak: 'break-word' }}>{topic.author_name}</div>
                         </Link>
@@ -68,7 +68,7 @@ export default function TopicDetail() {
                 {topic.comments?.map(c => (
                     <div key={c.id} style={{ display: 'flex', gap: '15px', padding: '15px 0', borderBottom: '1px dotted #ccc' }}>
                         <div style={{ width: '80px', textAlign: 'center', flexShrink: 0 }}>
-                            <Link to={`/profile/${c.author_id}`}>
+                            <Link to={`/profile/${c.author_username}`}>
                                 <img src={c.author_avatar} alt="Author" className="avatar avatar-md" style={{ display: 'block', margin: '0 auto' }} />
                                 <div style={{ fontSize: '10px', marginTop: '4px', wordBreak: 'break-word' }}>{c.author_name}</div>
                             </Link>

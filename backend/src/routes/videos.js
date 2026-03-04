@@ -16,14 +16,23 @@ router.get('/', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/user/:userId', authMiddleware, async (req, res) => {
+router.get('/user/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
+    const { userIdOrUsername } = req.params;
+    let userId = userIdOrUsername;
+    
+    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
+      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = user.id;
+    }
+    
     const videos = await db.allAsync(`
       SELECT v.*, u.username as owner_name,
         (SELECT COUNT(*) FROM video_comments vc WHERE vc.video_id = v.id) as comment_count
       FROM videos v JOIN users u ON u.id = v.owner_id
       WHERE v.owner_id = ? ORDER BY v.created_at DESC
-    `, [req.params.userId]);
+    `, [userId]);
     res.json(videos);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

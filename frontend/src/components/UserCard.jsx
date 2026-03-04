@@ -37,10 +37,10 @@ export default function UserCard({ user, stats }) {
 
                 {/* Navigation Menu */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <Link to={`/profile/${user.id}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#1155cc' }}>
+                    <Link to={`/profile/${user.username}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#1155cc' }}>
                         <span style={{ width: '14px', textAlign: 'center' }}>👤</span> perfil
                     </Link>
-                    <Link to={`/scraps?to=${user.id}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#1155cc' }}>
+                    <Link to={`/scraps?to=${user.username}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#1155cc' }}>
                         <span style={{ width: '14px', textAlign: 'center' }}>📝</span> recados
                     </Link>
                     <Link to={`/photos/user/${user.id}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#1155cc' }}>

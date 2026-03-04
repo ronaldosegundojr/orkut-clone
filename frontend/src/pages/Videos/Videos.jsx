@@ -12,7 +12,7 @@ export default function Videos() {
 
     const load = async () => {
         try {
-            const { data } = await api.get(`/videos/user/${user.id}`);
+            const { data } = await api.get(`/videos/user/${user.username}`);
             setVideos(data);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }

@@ -180,7 +180,7 @@ export default function Messages() {
     useEffect(() => {
         const userId = searchParams.get('userId');
         if (userId && convos.length > 0) {
-            const convo = convos.find(c => c.other_id === userId);
+            const convo = convos.find(c => c.other_username === userId || c.other_id === userId);
             if (convo) {
                 setActiveConvo(convo);
                 loadMessages(userId);
@@ -258,7 +258,7 @@ export default function Messages() {
                         <div style={{ padding: '15px', borderBottom: '1px solid var(--gray-border)', background: 'white', display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <img src={activeConvo.other_avatar} alt="Avatar" className="avatar avatar-sm" />
                             <div>
-                                <Link to={`/profile/${activeConvo.other_id}`} style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text)' }}>
+                                <Link to={`/profile/${activeConvo.other_username}`} style={{ fontWeight: 'bold', fontSize: '14px', color: 'var(--text)' }}>
                                     {activeConvo.other_name}
                                 </Link>
                             </div>

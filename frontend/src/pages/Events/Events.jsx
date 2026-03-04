@@ -76,7 +76,7 @@ export default function Events() {
                                     </div>
                                     <div style={{ fontSize: '12px', marginBottom: '10px', color: '#666', lineHeight: '1.4' }}>{ev.description}</div>
                                     <div style={{ fontSize: '10px', color: '#999' }}>
-                                        Criado por <Link to={`/profile/${ev.owner_id}`}>{ev.owner_name}</Link> • {ev.participant_count} participantes
+                                        Criado por <Link to={`/profile/${ev.owner_username}`}>{ev.owner_name}</Link> • {ev.participant_count} participantes
                                     </div>
                                 </div>
                                 <div style={{ width: '120px', textAlign: 'center' }}>

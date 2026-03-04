@@ -33,14 +33,23 @@ router.get('/mine', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/user/:userId', authMiddleware, async (req, res) => {
+router.get('/user/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
+    const { userIdOrUsername } = req.params;
+    let userId = userIdOrUsername;
+    
+    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
+      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = user.id;
+    }
+    
     const communities = await db.allAsync(`
       SELECT c.*, u.username as owner_name,
         (SELECT COUNT(*) FROM community_members cm2 WHERE cm2.community_id = c.id) as member_count
       FROM communities c JOIN community_members cm ON cm.community_id = c.id
       JOIN users u ON u.id = c.owner_id WHERE cm.user_id = ?
-    `, [req.params.userId]);
+    `, [userId]);
     res.json(communities);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -61,14 +70,14 @@ router.get('/:id/members', authMiddleware, async (req, res) => {
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const c = await db.getAsync(`
-      SELECT c.*, u.username as owner_name,
+      SELECT c.*, u.username as owner_name, u.username as owner_username,
         (SELECT COUNT(*) FROM community_members cm WHERE cm.community_id = c.id) as member_count
       FROM communities c JOIN users u ON u.id = c.owner_id WHERE c.id = ?
     `, [req.params.id]);
     if (!c) return res.status(404).json({ error: 'Comunidade não encontrada' });
     const [members, topics, isMemberRow] = await Promise.all([
       db.allAsync(`SELECT u.id, u.username, u.avatar FROM community_members cm JOIN users u ON u.id = cm.user_id WHERE cm.community_id = ? LIMIT 9`, [req.params.id]),
-      db.allAsync(`SELECT ft.*, u.username as author_name, u.avatar as author_avatar, (SELECT COUNT(*) FROM forum_comments fc WHERE fc.topic_id = ft.id) as comment_count FROM forum_topics ft JOIN users u ON u.id = ft.author_id WHERE ft.community_id = ? ORDER BY ft.created_at DESC`, [req.params.id]),
+      db.allAsync(`SELECT ft.*, u.username as author_name, u.avatar as author_avatar, u.username as author_username, (SELECT COUNT(*) FROM forum_comments fc WHERE fc.topic_id = ft.id) as comment_count FROM forum_topics ft JOIN users u ON u.id = ft.author_id WHERE ft.community_id = ? ORDER BY ft.created_at DESC`, [req.params.id]),
       db.getAsync('SELECT id FROM community_members WHERE community_id = ? AND user_id = ?', [req.params.id, req.user.id]),
     ]);
     res.json({ ...c, members, topics, isMember: !!isMemberRow });
@@ -116,9 +125,9 @@ router.post('/:id/topics', authMiddleware, async (req, res) => {
 
 router.get('/:id/topics/:topicId', authMiddleware, async (req, res) => {
   try {
-    const topic = await db.getAsync('SELECT ft.*, u.username as author_name, u.avatar as author_avatar FROM forum_topics ft JOIN users u ON u.id = ft.author_id WHERE ft.id = ?', [req.params.topicId]);
+    const topic = await db.getAsync('SELECT ft.*, u.username as author_name, u.avatar as author_avatar, u.username as author_username FROM forum_topics ft JOIN users u ON u.id = ft.author_id WHERE ft.id = ?', [req.params.topicId]);
     if (!topic) return res.status(404).json({ error: 'Tópico não encontrado' });
-    const comments = await db.allAsync('SELECT fc.*, u.username as author_name, u.avatar as author_avatar FROM forum_comments fc JOIN users u ON u.id = fc.author_id WHERE fc.topic_id = ? ORDER BY fc.created_at ASC', [req.params.topicId]);
+    const comments = await db.allAsync('SELECT fc.*, u.username as author_name, u.avatar as author_avatar, u.username as author_username FROM forum_comments fc JOIN users u ON u.id = fc.author_id WHERE fc.topic_id = ? ORDER BY fc.created_at ASC', [req.params.topicId]);
     res.json({ ...topic, comments });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -129,7 +138,7 @@ router.post('/:id/topics/:topicId/comments', authMiddleware, async (req, res) =>
     if (!body) return res.status(400).json({ error: 'Corpo obrigatório' });
     const id = uuidv4();
     await db.runAsync('INSERT INTO forum_comments (id, topic_id, author_id, body) VALUES (?, ?, ?, ?)', [id, req.params.topicId, req.user.id, body]);
-    const comment = await db.getAsync('SELECT fc.*, u.username as author_name, u.avatar as author_avatar FROM forum_comments fc JOIN users u ON u.id = fc.author_id WHERE fc.id = ?', [id]);
+    const comment = await db.getAsync('SELECT fc.*, u.username as author_name, u.avatar as author_avatar, u.username as author_username FROM forum_comments fc JOIN users u ON u.id = fc.author_id WHERE fc.id = ?', [id]);
     res.json(comment);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

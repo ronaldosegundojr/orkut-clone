@@ -62,7 +62,7 @@ export default function Friends() {
                         <div className="user-grid">
                             {friends.map(f => (
                                 <div key={f.id} className="user-card-mini">
-                                    <Link to={`/profile/${f.id}`}>
+                                    <Link to={`/profile/${f.username}`}>
                                         <img src={f.avatar} alt={f.username} className="avatar avatar-md" />
                                         <div className="name">{f.username}</div>
                                     </Link>
@@ -78,11 +78,11 @@ export default function Friends() {
                     <div>
                         {requests.map(r => (
                             <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 0', borderBottom: '1px dotted #ccc' }}>
-                                <Link to={`/profile/${r.user_id}`}>
+                                <Link to={`/profile/${r.username}`}>
                                     <img src={r.avatar} alt={r.username} className="avatar avatar-lg" />
                                 </Link>
                                 <div style={{ flex: 1 }}>
-                                    <Link to={`/profile/${r.user_id}`} style={{ fontWeight: 'bold', fontSize: '14px' }}>{r.username}</Link>
+                                    <Link to={`/profile/${r.username}`} style={{ fontWeight: 'bold', fontSize: '14px' }}>{r.username}</Link>
                                     <div className="humor-text" style={{ marginTop: '4px' }}>{r.humor}</div>
                                     <div style={{ fontSize: '10px', color: '#999', marginTop: '4px' }}>
                                         Solicitado em {new Date(r.created_at).toLocaleDateString()}

@@ -11,6 +11,7 @@ router.get('/conversations', authMiddleware, async (req, res) => {
       SELECT
         CASE WHEN m.sender_id = ? THEN m.receiver_id ELSE m.sender_id END as other_id,
         u.username as other_name, u.avatar as other_avatar,
+        u.username as other_username,
         m.body as last_message, m.created_at as last_time,
         SUM(CASE WHEN m.receiver_id = ? AND m.read = 0 THEN 1 ELSE 0 END) as unread
       FROM messages m
@@ -23,15 +24,24 @@ router.get('/conversations', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/with/:userId', authMiddleware, async (req, res) => {
+router.get('/with/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
+    const { userIdOrUsername } = req.params;
+    let targetId = userIdOrUsername;
+    
+    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
+      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+      targetId = user.id;
+    }
+    
     const messages = await db.allAsync(`
       SELECT m.*, u.username as sender_name, u.avatar as sender_avatar
       FROM messages m JOIN users u ON u.id = m.sender_id
       WHERE (m.sender_id = ? AND m.receiver_id = ?) OR (m.sender_id = ? AND m.receiver_id = ?)
       ORDER BY m.created_at ASC
-    `, [req.user.id, req.params.userId, req.params.userId, req.user.id]);
-    await db.runAsync('UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ?', [req.params.userId, req.user.id]);
+    `, [req.user.id, targetId, targetId, req.user.id]);
+    await db.runAsync('UPDATE messages SET read = 1 WHERE sender_id = ? AND receiver_id = ?', [targetId, req.user.id]);
     res.json(messages);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

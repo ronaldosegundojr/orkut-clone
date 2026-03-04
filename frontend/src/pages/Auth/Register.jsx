@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Register() {
     const { register } = useAuth();
     const navigate = useNavigate();
-    const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+    const [formData, setFormData] = useState({ fullName: '', username: '', email: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ export default function Register() {
         setError('');
         setLoading(true);
         try {
-            await register(formData.username, formData.email, formData.password);
+            await register(formData.fullName, formData.username, formData.email, formData.password);
             navigate('/');
         } catch (err) {
             setError(err.response?.data?.error || 'Erro ao registrar');
@@ -36,7 +36,11 @@ export default function Register() {
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label>Nome Completo</label>
-                        <input type="text" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} required />
+                        <input type="text" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} required />
+                    </div>
+                    <div className="form-group">
+                        <label>Nome de usuário</label>
+                        <input type="text" value={formData.username} onChange={e => setFormData({ ...formData, username: e.target.value })} placeholder="ex: arthur.monzelli" required />
                     </div>
                     <div className="form-group">
                         <label>E-mail</label>

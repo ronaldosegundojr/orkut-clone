@@ -8,7 +8,7 @@ const router = express.Router();
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const events = await db.allAsync(`
-      SELECT e.*, u.username as owner_name, u.avatar as owner_avatar,
+      SELECT e.*, u.username as owner_name, u.avatar as owner_avatar, u.username as owner_username,
         (SELECT COUNT(*) FROM event_participants ep WHERE ep.event_id = e.id) as participant_count
       FROM events e JOIN users u ON u.id = e.owner_id ORDER BY e.date ASC
     `, []);

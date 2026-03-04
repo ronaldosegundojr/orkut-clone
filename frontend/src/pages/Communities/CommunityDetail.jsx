@@ -55,7 +55,7 @@ export default function CommunityDetail() {
                         </button>
 
                         <div style={{ textAlign: 'left', fontSize: '11px', borderTop: '1px dotted #ccc', paddingTop: '10px' }}>
-                            <div style={{ marginBottom: '6px' }}><strong>Dono:</strong> <Link to={`/profile/${comm.owner_id}`}>{comm.owner_name}</Link></div>
+                            <div style={{ marginBottom: '6px' }}><strong>Dono:</strong> <Link to={`/profile/${comm.owner_username}`}>{comm.owner_name}</Link></div>
                             <div style={{ marginBottom: '6px' }}><strong>Categoria:</strong> {comm.category}</div>
                             <div style={{ marginBottom: '6px' }}><strong>Criada em:</strong> {new Date(comm.created_at).toLocaleDateString()}</div>
                         </div>
@@ -69,7 +69,7 @@ export default function CommunityDetail() {
                             </div>
                             <div className="photo-grid" style={{ marginTop: '8px' }}>
                                 {comm.members.slice(0, 9).map(m => (
-                                    <Link key={m.id} to={`/profile/${m.id}`} title={m.username} className="photo-thumb">
+                                    <Link key={m.id} to={`/profile/${m.username}`} title={m.username} className="photo-thumb">
                                         <img src={m.avatar} alt={m.username} />
                                     </Link>
                                 ))}
@@ -118,7 +118,7 @@ export default function CommunityDetail() {
                             <div key={t.id} className="topic-item">
                                 <Link to={`/communities/${id}/topics/${t.id}`} className="topic-title">{t.title}</Link>
                                 <div className="topic-meta">
-                                    Por: <Link to={`/profile/${t.author_id}`}>{t.author_name}</Link> • {t.comment_count} respostas • {new Date(t.created_at).toLocaleString()}
+                                    Por: <Link to={`/profile/${t.author_username}`}>{t.author_name}</Link> • {t.comment_count} respostas • {new Date(t.created_at).toLocaleString()}
                                 </div>
                             </div>
                         ))}

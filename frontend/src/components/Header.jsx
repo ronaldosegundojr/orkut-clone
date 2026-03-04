@@ -39,7 +39,7 @@ export default function Header() {
                 <div style={{ flex: 1, background: '#8da5c9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px', borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }}>
                     <nav style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold' }}>
                         <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Início</Link>
-                        <Link to={`/profile/${user.id}`} style={{ color: 'white', textDecoration: 'none' }}>Perfil</Link>
+                        <Link to={`/profile/${user.username}`} style={{ color: 'white', textDecoration: 'none' }}>Perfil</Link>
                         <Link to="/scraps" style={{ color: 'white', textDecoration: 'none' }}>Página de recados</Link>
                         <Link to="/friends" style={{ color: 'white', textDecoration: 'none' }}>Amigos</Link>
                         <Link to="/communities" style={{ color: 'white', textDecoration: 'none' }}>Comunidades</Link>
@@ -67,7 +67,7 @@ export default function Header() {
                             {showResults && results.length > 0 && (
                                 <div className="search-results">
                                     {results.map(r => (
-                                        <Link to={`/profile/${r.id}`} key={r.id} className="search-result-item" style={{ color: 'inherit' }}>
+                                        <Link to={`/profile/${r.username}`} key={r.id} className="search-result-item" style={{ color: 'inherit' }}>
                                             <img src={r.avatar} alt={r.username} className="avatar avatar-sm" style={{ width: '30px', height: '30px', borderRadius: 0, border: '1px solid var(--gray-border)' }} />
                                             <div>
                                                 <div style={{ fontWeight: 'bold', fontSize: '11px' }}>{r.username}</div>

@@ -41,8 +41,8 @@ export function AuthProvider({ children }) {
         return res.data.user;
     }, []);
 
-    const register = useCallback(async (username, email, password) => {
-        const res = await api.post('/auth/register', { username, email, password });
+    const register = useCallback(async (fullName, username, email, password) => {
+        const res = await api.post('/auth/register', { fullName, username, email, password });
         localStorage.setItem('tukro_token', res.data.token);
         localStorage.setItem('tukro_user', JSON.stringify(res.data.user));
         setUser(res.data.user);

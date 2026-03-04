@@ -8,7 +8,7 @@ export default function Scraps() {
     const location = useLocation();
     const navigate = useNavigate();
     const query = new URLSearchParams(location.search);
-    const targetId = query.get('to') || user.id;
+    const targetParam = query.get('to') || user.username;
 
     const [scraps, setScraps] = useState([]);
     const [newScrap, setNewScrap] = useState('');
@@ -20,8 +20,8 @@ export default function Scraps() {
             setLoading(true);
             try {
                 const [scrapsRes, userRes] = await Promise.all([
-                    api.get(`/scraps/${targetId}`),
-                    api.get(`/users/${targetId}`)
+                    api.get(`/scraps/${targetParam}`),
+                    api.get(`/users/${targetParam}`)
                 ]);
                 setScraps(scrapsRes.data);
                 setTargetUser(userRes.data);
@@ -29,13 +29,13 @@ export default function Scraps() {
             finally { setLoading(false); }
         };
         load();
-    }, [targetId]);
+    }, [targetParam]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!newScrap.trim()) return;
         try {
-            const res = await api.post('/scraps', { target_id: targetId, text: newScrap });
+            const res = await api.post('/scraps', { target_id: targetUser.id, text: newScrap });
             setScraps([res.data, ...scraps]);
             setNewScrap('');
         } catch (e) { alert('Erro ao enviar'); }
@@ -85,19 +85,19 @@ export default function Scraps() {
 
                 {scraps.map(scrap => (
                     <div key={scrap.id} className="scrap-item">
-                        <Link to={`/profile/${scrap.author_id}`}>
+                        <Link to={`/profile/${scrap.author_username}`}>
                             <img src={scrap.author_avatar} alt="Avatar" className="avatar avatar-md" />
                         </Link>
                         <div className="scrap-content">
                             <div className="scrap-meta">
-                                <Link to={`/profile/${scrap.author_id}`}>{scrap.author_name}</Link> ({new Date(scrap.created_at).toLocaleString()})
+                                <Link to={`/profile/${scrap.author_username}`}>{scrap.author_name}</Link> ({new Date(scrap.created_at).toLocaleString()})
                             </div>
                             <div className="scrap-text">{scrap.text}</div>
                             <div className="scrap-actions">
                                 {user.id !== scrap.author_id && (
-                                    <Link to={`/scraps?to=${scrap.author_id}`} className="btn btn-outline btn-sm">Responder</Link>
+                                    <Link to={`/scraps?to=${scrap.author_username}`} className="btn btn-outline btn-sm">Responder</Link>
                                 )}
-                                {(user.id === targetId || user.id === scrap.author_id) && (
+                                {(user.id === targetUser?.id || user.id === scrap.author_id) && (
                                     <button onClick={() => handleDelete(scrap.id)} className="btn btn-gray btn-sm">Excluir</button>
                                 )}
                             </div>

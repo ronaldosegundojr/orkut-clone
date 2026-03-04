@@ -17,8 +17,17 @@ router.get('/requests/pending', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/:userId', authMiddleware, async (req, res) => {
+router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
+    const { userIdOrUsername } = req.params;
+    let userId = userIdOrUsername;
+    
+    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
+      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = user.id;
+    }
+    
     const friends = await db.allAsync(`
       SELECT u.id, u.username, u.avatar, u.humor, u.city,
         f.id as friendship_id, f.status
@@ -26,7 +35,7 @@ router.get('/:userId', authMiddleware, async (req, res) => {
       JOIN users u ON u.id = f.friend_id
       WHERE f.user_id = ? AND f.status = 'accepted'
       ORDER BY u.username
-    `, [req.params.userId]);
+    `, [userId]);
     res.json(friends);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
