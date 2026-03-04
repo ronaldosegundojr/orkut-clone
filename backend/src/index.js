@@ -23,6 +23,7 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/videos', require('./routes/videos'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/testimonials', require('./routes/testimonials'));
+app.use('/api/updates', require('./routes/updates'));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Tukro API 🌸' }));
 

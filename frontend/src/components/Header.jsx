@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+
 import { useAuth } from '../context/AuthContext';
 import { Search } from 'lucide-react';
 import { useState } from 'react';
@@ -6,9 +6,23 @@ import api from '../api/client';
 
 export default function Header() {
     const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const [q, setQ] = useState('');
     const [results, setResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
+
+    const performFullSearch = () => {
+        if (q.trim()) {
+            setShowResults(false);
+            navigate(`/search?q=${encodeURIComponent(q)}`);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            performFullSearch();
+        }
+    };
 
     const handleSearch = async (e) => {
         const term = e.target.value;
@@ -56,10 +70,14 @@ export default function Header() {
                                     placeholder="pesquisa do tukro"
                                     value={q}
                                     onChange={handleSearch}
+                                    onKeyDown={handleKeyPress}
                                     onBlur={() => setTimeout(() => setShowResults(false), 200)}
                                     style={{ border: 'none', outline: 'none', fontSize: '11px', padding: '2px 4px', width: '130px', margin: 0 }}
                                 />
-                                <div style={{ background: '#d4dded', padding: '2px 6px', cursor: 'pointer', border: '1px solid #a3b2cc' }}>
+                                <div
+                                    style={{ background: '#d4dded', padding: '2px 6px', cursor: 'pointer', border: '1px solid #a3b2cc' }}
+                                    onClick={performFullSearch}
+                                >
                                     <Search size={10} color="#000" />
                                 </div>
                             </div>

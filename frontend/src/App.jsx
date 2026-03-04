@@ -19,6 +19,7 @@ import Photos from './pages/Photos/Photos';
 import Events from './pages/Events/Events';
 import Videos from './pages/Videos/Videos';
 import Messages from './pages/Messages/Messages';
+import SearchResults from './pages/Search/SearchResults';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -69,6 +70,7 @@ function App() {
           <Route path="/events" element={<ProtectedRoute><AppLayout><Events /></AppLayout></ProtectedRoute>} />
           <Route path="/videos" element={<ProtectedRoute><AppLayout><Videos /></AppLayout></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><AppLayout><Messages /></AppLayout></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute><AppLayout><SearchResults /></AppLayout></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

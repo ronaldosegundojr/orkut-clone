@@ -41,21 +41,8 @@ export default function Home() {
     useEffect(() => {
         const loadUpdates = async () => {
             try {
-                const friendsRes = await api.get(`/friends/${user.username}`);
-                const friendIds = friendsRes.data.map(f => f.id);
-                
-                const [scrapsRes, photosRes, videosRes] = await Promise.all([
-                    api.get(`/scraps/${user.username}`),
-                    api.get(`/photos`),
-                    api.get(`/videos`)
-                ]);
-                
-                const scraps = scrapsRes.data.filter(s => friendIds.includes(s.author_id)).slice(0, 5).map(s => ({ ...s, type: 'scrap' }));
-                const photos = photosRes.data.filter(p => friendIds.includes(p.owner_id)).slice(0, 5).map(p => ({ ...p, type: 'photo' }));
-                const videos = videosRes.data.filter(v => friendIds.includes(v.owner_id)).slice(0, 5).map(v => ({ ...v, type: 'video' }));
-                
-                const allUpdates = [...scraps, ...photos, ...videos].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10);
-                setUpdates(allUpdates);
+                const res = await api.get('/api/updates');
+                setUpdates(res.data);
             } catch (e) {
                 console.error('Updates load error:', e);
             }
@@ -109,7 +96,7 @@ export default function Home() {
         <div className="three-col">
             <div className="col-left">
                 <UserCard user={user} stats={stats} />
-                
+
                 {pendingTestimonials.length > 0 && (
                     <div className="card" style={{ marginTop: '12px', border: '2px solid #d12b8f' }}>
                         <div className="card-header" style={{ background: '#d12b8f', color: 'white' }}>
@@ -158,55 +145,81 @@ export default function Home() {
 
                 <div className="card" style={{ marginBottom: '12px' }}>
                     <div className="card-header">📰 Atualizações dos Amigos</div>
-                    <div className="card-body">
+                    <div className="card-body" style={{ padding: '0' }}>
                         {updates.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                            <div style={{ textAlign: 'center', padding: '20px', color: '#999', fontSize: '11px' }}>
                                 Nenhuma atualização dos seus amigos ainda.
                             </div>
                         ) : (
-                            updates.map(update => (
-                                <div key={`${update.type}-${update.id}`} style={{ display: 'flex', gap: '10px', padding: '10px', borderBottom: '1px solid #eee', marginBottom: '8px' }}>
-                                    {update.type === 'scrap' && (
-                                        <>
-                                            <img src={update.author_avatar} alt={update.author_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
-                                            <div>
-                                                <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${update.author_username || update.author_id}`} style={{ fontWeight: 'bold' }}>{update.author_name}</Link>
-                                                    {' '}enviou um recado
-                                                </div>
-                                                <div style={{ fontSize: '13px', color: '#333', marginTop: '4px' }}>{update.text?.substring(0, 100)}...</div>
-                                                <div style={{ fontSize: '10px', color: '#999', marginTop: '4px' }}>{new Date(update.created_at).toLocaleString('pt-BR')}</div>
+                            <div style={{
+                                display: 'flex',
+                                overflowX: 'auto',
+                                padding: '12px',
+                                gap: '12px',
+                                scrollbarWidth: 'thin',
+                                scrollbarColor: '#d12b8f #e4edf5'
+                            }}>
+                                {updates.map(update => (
+                                    <div
+                                        key={`${update.type}-${update.id}`}
+                                        className="update-item-horizontal"
+                                        style={{
+                                            flex: '0 0 160px',
+                                            background: '#f8f9fc',
+                                            border: '1px solid #e1e7f0',
+                                            borderRadius: '4px',
+                                            padding: '8px',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            textAlign: 'center'
+                                        }}
+                                    >
+                                        <div style={{ position: 'relative', marginBottom: '8px' }}>
+                                            <img
+                                                src={update.type === 'scrap' ? update.author_avatar : update.owner_avatar}
+                                                alt="avatar"
+                                                style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                                            />
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '-2px',
+                                                right: '-2px',
+                                                background: update.type === 'scrap' ? '#d12b8f' : update.type === 'photo' ? '#4caf50' : '#2196f3',
+                                                borderRadius: '50%',
+                                                width: '18px',
+                                                height: '18px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                fontSize: '10px',
+                                                color: 'white',
+                                                border: '1px solid white'
+                                            }}>
+                                                {update.type === 'scrap' ? '💬' : update.type === 'photo' ? '📷' : '🎬'}
                                             </div>
-                                        </>
-                                    )}
-                                    {update.type === 'photo' && (
-                                        <>
-                                            <img src={update.owner_avatar} alt={update.owner_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
-                                            <div>
-                                                <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${update.owner_username || update.owner_id}`} style={{ fontWeight: 'bold' }}>{update.owner_name}</Link>
-                                                    {' '}publicou uma foto
-                                                </div>
-                                                <img src={update.url} alt={update.caption} style={{ width: '150px', height: '100px', objectFit: 'cover', borderRadius: '4px', marginTop: '4px' }} />
-                                                <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>{update.caption}</div>
-                                            </div>
-                                        </>
-                                    )}
-                                    {update.type === 'video' && (
-                                        <>
-                                            <img src={update.owner_avatar} alt={update.owner_name} style={{ width: '36px', height: '36px', borderRadius: '50%' }} />
-                                            <div>
-                                                <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${update.owner_username || update.owner_id}`} style={{ fontWeight: 'bold' }}>{update.owner_name}</Link>
-                                                    {' '}compartilhou um vídeo
-                                                </div>
-                                                <div style={{ fontSize: '13px', color: '#1155cc', marginTop: '4px' }}>🎬 {update.title}</div>
-                                                <div style={{ fontSize: '10px', color: '#999', marginTop: '4px' }}>{update.views} visualizações</div>
-                                            </div>
-                                        </>
-                                    )}
-                                </div>
-                            ))
+                                        </div>
+
+                                        <div style={{ fontSize: '11px', fontWeight: 'bold', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                                            <Link to={`/profile/${update.type === 'scrap' ? update.author_username : update.owner_username}`} style={{ color: '#1155cc' }}>
+                                                {update.type === 'scrap' ? update.author_name : update.owner_name}
+                                            </Link>
+                                        </div>
+
+                                        <div style={{ fontSize: '10px', color: '#666', marginTop: '4px', height: '32px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                            {update.type === 'scrap' ? update.text : update.type === 'photo' ? update.caption : update.title}
+                                        </div>
+
+                                        {update.type === 'photo' && (
+                                            <img src={update.url} alt="photo" style={{ width: '100%', height: '60px', objectFit: 'cover', borderRadius: '2px', marginTop: '6px' }} />
+                                        )}
+
+                                        <div style={{ fontSize: '9px', color: '#999', marginTop: 'auto', paddingTop: '6px' }}>
+                                            {new Date(update.created_at).toLocaleDateString()}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
                 </div>
@@ -226,7 +239,7 @@ export default function Home() {
                             </select>
                             {showTestimonialForm && showTestimonialForm === document.getElementById('testimonial-friend')?.value ? (
                                 <div>
-                                    <textarea 
+                                    <textarea
                                         value={testimonialText}
                                         onChange={(e) => setTestimonialText(e.target.value)}
                                         placeholder="Escreva um depoimento especial para o seu amigo..."
