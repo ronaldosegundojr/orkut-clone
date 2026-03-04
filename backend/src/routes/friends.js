@@ -21,13 +21,13 @@ router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
     const { userIdOrUsername } = req.params;
     let userId = userIdOrUsername;
-    
+
     if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
       const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
       if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
       userId = user.id;
     }
-    
+
     const friends = await db.allAsync(`
       SELECT u.id, u.username, u.avatar, u.humor, u.city,
         f.id as friendship_id, f.status
@@ -78,17 +78,44 @@ router.delete('/:friendId', authMiddleware, async (req, res) => {
 
 router.get('/suggestions/:userId', authMiddleware, async (req, res) => {
   try {
+    const user = await db.getAsync('SELECT city, details FROM users WHERE id = ?', [req.params.userId]);
+    let myDetails = {};
+    try { myDetails = JSON.parse(user.details || '{}'); } catch (e) { }
+    const myCity = user.city || '';
+    const myState = myDetails.state_or_region || '';
+    const myPrefs = myDetails.preferences || {};
+
     const myFriends = await db.allAsync(`
       SELECT CASE WHEN user_id = ? THEN friend_id ELSE user_id END as fid
       FROM friends WHERE (user_id = ? OR friend_id = ?) AND status = 'accepted'
     `, [req.params.userId, req.params.userId, req.params.userId]);
+
     const myFriendIds = myFriends.map(r => r.fid);
     const alreadyConnected = [req.params.userId, ...myFriendIds];
     const placeholders = alreadyConnected.map(() => '?').join(',');
-    const suggestions = await db.allAsync(`
-      SELECT id, username, avatar, humor FROM users
-      WHERE id NOT IN (${placeholders}) LIMIT 5
+
+    const candidates = await db.allAsync(`
+      SELECT id, username, avatar, humor, city, details FROM users
+      WHERE id NOT IN (${placeholders})
     `, alreadyConnected);
+
+    const scoredCandidates = candidates.map(c => {
+      let score = 0;
+      if (c.city === myCity && myCity !== '') score += 5;
+      let cDetails = {};
+      try { cDetails = JSON.parse(c.details || '{}'); } catch (e) { }
+      if (cDetails.state_or_region === myState && myState !== '') score += 3;
+
+      const cPrefs = cDetails.preferences || {};
+      for (const [key, value] of Object.entries(myPrefs)) {
+        if (value === true && cPrefs[key] === true) score += 2;
+      }
+      return { ...c, score };
+    });
+
+    scoredCandidates.sort((a, b) => b.score - a.score);
+    const suggestions = scoredCandidates.slice(0, 5).map(({ details, score, ...rest }) => rest);
+
     res.json(suggestions);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
         const validateToken = async () => {
             const token = localStorage.getItem('tukro_token');
             const storedUser = localStorage.getItem('tukro_user');
-            
+
             if (!token || !storedUser) {
                 setLoading(false);
                 return;
@@ -41,8 +41,8 @@ export function AuthProvider({ children }) {
         return res.data.user;
     }, []);
 
-    const register = useCallback(async (fullName, username, email, password) => {
-        const res = await api.post('/auth/register', { fullName, username, email, password });
+    const register = useCallback(async (userData) => {
+        const res = await api.post('/auth/register', userData);
         localStorage.setItem('tukro_token', res.data.token);
         localStorage.setItem('tukro_user', JSON.stringify(res.data.user));
         setUser(res.data.user);
