@@ -88,6 +88,12 @@ export default function UserCard({ user, stats, onAddFriend }) {
                             >
                                 <Users size={12} color="#f9c" /> adicionar amigo
                             </div>
+                            <Link
+                                to={`/messages?userId=${encodeURIComponent(user.username)}`}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}
+                            >
+                                <span style={{ width: '14px', textAlign: 'center', color: '#1155cc' }}>📧</span> mandar mensagem
+                            </Link>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}>
                                 <span style={{ width: '14px', textAlign: 'center', color: '#cc0000' }}>⭐</span> criar depoimento
                             </div>

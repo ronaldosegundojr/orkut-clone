@@ -173,20 +173,48 @@ export default function Messages() {
         } catch (e) { console.error(e); }
     };
 
-    useEffect(() => { 
-        loadConvos(); 
+    useEffect(() => {
+        loadConvos();
     }, []);
 
     useEffect(() => {
-        const userId = searchParams.get('userId');
-        if (userId && convos.length > 0) {
-            const convo = convos.find(c => c.other_username === userId || c.other_id === userId);
-            if (convo) {
-                setActiveConvo(convo);
-                loadMessages(userId);
-            }
+        const userIdParam = searchParams.get('userId');
+        if (!userIdParam) {
+            setActiveConvo(null);
+            return;
         }
-    }, [searchParams, convos]);
+
+        // Try to find in existing convos
+        const convo = convos.find(c => c.other_username === userIdParam || c.other_id === userIdParam);
+        if (convo) {
+            if (activeConvo?.other_id !== convo.other_id) {
+                setActiveConvo(convo);
+                loadMessages(convo.other_id);
+            }
+        } else if (!loading) {
+            // Not in list, check if we're already trying to load this user as a placeholder
+            if (activeConvo?.other_username === userIdParam || activeConvo?.other_id === userIdParam) {
+                return;
+            }
+
+            const fetchAndStart = async () => {
+                try {
+                    const { data: otherUser } = await api.get(`/users/${encodeURIComponent(userIdParam)}`);
+                    setActiveConvo({
+                        other_id: otherUser.id,
+                        other_name: otherUser.username,
+                        other_username: otherUser.username,
+                        other_avatar: otherUser.avatar,
+                        placeholder: true
+                    });
+                    setMessages([]);
+                } catch (e) {
+                    console.error('Error fetching user for message:', e);
+                }
+            };
+            fetchAndStart();
+        }
+    }, [searchParams, convos, loading, activeConvo]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -272,16 +300,16 @@ export default function Messages() {
                                         {!isSentByMe && <img src={m.sender_avatar} alt="Av" className="avatar avatar-sm" style={{ alignSelf: 'flex-end' }} />}
                                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: isSentByMe ? 'flex-end' : 'flex-start' }}>
                                             {m.type === 'gif' || isGifUrl(m.body) ? (
-                                                <img 
-                                                    src={m.body} 
-                                                    alt="gif" 
-                                                    style={{ 
-                                                        maxWidth: '250px', 
+                                                <img
+                                                    src={m.body}
+                                                    alt="gif"
+                                                    style={{
+                                                        maxWidth: '250px',
                                                         maxHeight: '250px',
                                                         borderRadius: '12px',
                                                         objectFit: 'contain',
                                                         background: '#fff'
-                                                    }} 
+                                                    }}
                                                     loading="lazy"
                                                 />
                                             ) : (
@@ -312,7 +340,7 @@ export default function Messages() {
                                     </div>
                                 </div>
                             )}
-                            
+
                             {showGifPicker && (
                                 <div ref={gifPickerRef} style={{ position: 'absolute', bottom: '60px', left: '15px', background: 'white', border: '1px solid #ddd', borderRadius: '8px', padding: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 10, width: '320px', maxHeight: '280px', overflow: 'auto' }}>
                                     <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
