@@ -129,14 +129,14 @@ export default function Home() {
     };
 
     const nextCarousel = () => {
-        if (carouselIndex + 6 < suggestions.length) {
-            setCarouselIndex(carouselIndex + 1);
+        if (carouselIndex + 4 < suggestions.length) {
+            setCarouselIndex(prev => prev + 1);
         }
     };
 
     const prevCarousel = () => {
         if (carouselIndex > 0) {
-            setCarouselIndex(carouselIndex - 1);
+            setCarouselIndex(prev => prev - 1);
         }
     };
 
@@ -175,43 +175,67 @@ export default function Home() {
                 <div className="card" style={{ marginBottom: '16px', borderRadius: '8px', border: '1px solid #c9d7f1' }}>
                     <div className="card-header" style={{ borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '5px' }}>
                         <span style={{ color: '#1155cc', fontSize: '10px' }}>●</span>
-                        <span style={{ fontSize: '11px', color: '#333' }}>Amigos sugeridos pelo orkut</span>
+                        <span style={{ fontSize: '11px', color: '#333' }}>Amigos sugeridos pelo Tukro</span>
                     </div>
-                    <div className="card-body" style={{ position: 'relative', padding: '10px 30px' }}>
-                        {suggestions.length > 6 && (
+                    <div className="card-body" style={{ position: 'relative', padding: '15px 45px', overflow: 'hidden', minHeight: '160px' }}>
+                        {suggestions.length > 4 && (
                             <>
                                 <button
                                     onClick={prevCarousel}
                                     disabled={carouselIndex === 0}
-                                    style={{ position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: carouselIndex === 0 ? '#ccc' : '#1155cc' }}
+                                    style={{
+                                        position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)',
+                                        background: carouselIndex === 0 ? '#f0f0f0' : '#d12b8f',
+                                        border: 'none', borderRadius: '50%', width: '32px', height: '32px',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: carouselIndex === 0 ? 'default' : 'pointer', zIndex: 10,
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)', color: 'white',
+                                        transition: 'all 0.2s'
+                                    }}
                                 >
                                     <ChevronLeft size={20} />
                                 </button>
                                 <button
                                     onClick={nextCarousel}
-                                    disabled={carouselIndex + 6 >= suggestions.length}
-                                    style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: carouselIndex + 6 >= suggestions.length ? '#ccc' : '#1155cc' }}
+                                    disabled={carouselIndex + 4 >= suggestions.length}
+                                    style={{
+                                        position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                                        background: carouselIndex + 4 >= suggestions.length ? '#f0f0f0' : '#d12b8f',
+                                        border: 'none', borderRadius: '50%', width: '32px', height: '32px',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: carouselIndex + 4 >= suggestions.length ? 'default' : 'pointer', zIndex: 10,
+                                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)', color: 'white',
+                                        transition: 'all 0.2s'
+                                    }}
                                 >
                                     <ChevronRight size={20} />
                                 </button>
                             </>
                         )}
 
-                        <div style={{ display: 'flex', gap: '8px', overflow: 'hidden' }}>
-                            {suggestions.slice(carouselIndex, carouselIndex + 6).map(s => (
-                                <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90px', flexShrink: 0 }}>
-                                    <Link to={`/profile/${encodeURIComponent(s.username)}`}>
-                                        <img src={s.avatar} alt={s.username} style={{ width: '80px', height: '80px', objectFit: 'cover', border: '1px solid #333', background: 'black', padding: '0' }} />
+                        <div style={{ display: 'flex', gap: '15px', transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)', transform: `translateX(-${carouselIndex * 110}px)` }}>
+                            {suggestions.map(s => (
+                                <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '95px', flexShrink: 0 }}>
+                                    <Link to={`/profile/${encodeURIComponent(s.username)}`} style={{ position: 'relative' }}>
+                                        <img src={s.avatar} alt={s.username} style={{ width: '85px', height: '85px', objectFit: 'cover', border: '1px solid #c9d7f1', padding: '2px', background: 'white', borderRadius: '4px' }} />
                                     </Link>
-                                    <Link to={`/profile/${encodeURIComponent(s.username)}`} style={{ fontSize: '10px', color: '#1155cc', textDecoration: 'none', textAlign: 'center', width: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
+                                    <Link to={`/profile/${encodeURIComponent(s.username)}`} style={{ fontSize: '11px', fontWeight: 'bold', color: '#1155cc', textDecoration: 'none', textAlign: 'center', width: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '4px' }}>
                                         {s.username}
                                     </Link>
-                                    <button className="btn btn-gray btn-sm" style={{ marginTop: '4px', fontSize: '10px', padding: '1px 6px', fontWeight: 'normal', color: '#1155cc', background: '#f0f0f0', border: '1px solid #ccc' }} onClick={() => handleAddFriend(s.id)}>
-                                        add friend
+                                    <button
+                                        className="btn btn-outline btn-sm"
+                                        style={{ marginTop: '6px', fontSize: '9px', padding: '2px 6px', width: '100%', whiteSpace: 'nowrap' }}
+                                        onClick={() => handleAddFriend(s.id)}
+                                    >
+                                        adicionar amigo(a)
                                     </button>
                                 </div>
                             ))}
-                            {suggestions.length === 0 && <span style={{ color: '#999', fontSize: '11px' }}>Sem sugestões no momento.</span>}
+                            {suggestions.length === 0 && (
+                                <div style={{ textAlign: 'center', width: '100%', padding: '20px', color: '#999', fontSize: '12px' }}>
+                                    Nenhuma nova sugestão disponível agora.
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -365,7 +389,7 @@ export default function Home() {
                                 </div>
                             </div>
                             <div style={{ fontSize: '18px', color: '#666' }}>10 convites</div>
-                            <div style={{ fontSize: '13px', color: '#333' }}>restantes para o novo orkut</div>
+                            <div style={{ fontSize: '13px', color: '#333' }}>restantes para o Tukro</div>
 
                             <button
                                 onClick={() => setShowInviteModal(true)}

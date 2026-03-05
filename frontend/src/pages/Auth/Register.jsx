@@ -24,6 +24,9 @@ export default function Register() {
     const [statesList, setStatesList] = useState([]);
     const [citiesList, setCitiesList] = useState([]);
 
+    const [step, setStep] = useState(1);
+    const [agreed, setAgreed] = useState(false);
+
     useEffect(() => {
         fetch('https://servicodados.ibge.gov.br/api/v1/localidades/paises?orderBy=nome')
             .then(res => res.json())
@@ -112,7 +115,7 @@ export default function Register() {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleNextStep = (e) => {
         e.preventDefault();
         setError('');
 
@@ -129,6 +132,16 @@ export default function Register() {
             return setError('A senha deve ser média ou forte. Utilize letras, números ou símbolos.');
         }
 
+        setStep(2);
+        window.scrollTo(0, 0);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!agreed) {
+            return setError('Você precisa aceitar os termos de uso para continuar.');
+        }
+
         setLoading(true);
         try {
             await register(formData);
@@ -140,6 +153,61 @@ export default function Register() {
         }
     };
 
+    if (step === 2) {
+        return (
+            <div className="auth-page" style={{ height: 'auto', minHeight: '100vh', padding: '40px 0' }}>
+                <div className="auth-card" style={{ width: '650px', maxWidth: '95%' }}>
+                    <div className="auth-logo">
+                        <h1 style={{ color: 'var(--pink)', fontSize: '36px', letterSpacing: '-2px', margin: 0 }}>tukro</h1>
+                        <p className="auth-title" style={{ color: 'var(--text-light)', fontSize: '13px', marginTop: '4px', fontWeight: 'bold' }}>Termos e Condições para Criação de Conta</p>
+                    </div>
+
+                    {error && <div className="auth-error">{error}</div>}
+
+                    <div style={{ background: '#f9f9f9', padding: '20px', borderRadius: '8px', border: '1px solid #eee', maxHeight: '400px', overflowY: 'auto', marginBottom: '20px', fontSize: '12px', lineHeight: '1.6', textAlign: 'justify' }}>
+                        <p style={{ marginBottom: '15px' }}>
+                            O <strong>Tukro</strong> é uma rede social experimental nascida em 2026 com o propósito de resgatar a essência das conexões humanas e a criação de comunidades genuínas. Ao criar sua conta, você está aderindo a um novo ecossistema digital que prioriza pessoas sobre marketing e experiências reais sobre coleta de leads.
+                        </p>
+                        <p style={{ marginBottom: '15px' }}>
+                            <strong>Compromisso Tukro:</strong> Não somos uma plataforma de vendas ou propaganda. Nosso objetivo é proporcionar um ambiente livre de ruídos comerciais, inspirado no modelo clássico das redes sociais do início dos anos 2000.
+                        </p>
+                        <p style={{ marginBottom: '15px' }}>
+                            Ao clicar em "Criar minha conta no Tukro", você declara estar ciente de que:
+                        </p>
+                        <ul style={{ marginLeft: '20px', marginBottom: '15px' }}>
+                            <li>O Tukro é um projeto independente, sem qualquer afiliação com o Google LLC ou a antiga marca Orkut.</li>
+                            <li>Você é o único responsável legal por todo conteúdo, mensagens e mídias publicadas em seu perfil.</li>
+                            <li>Respeitar a privacidade e a segurança dos outros membros é fundamental. Práticas de assédio, spam ou pirataria resultarão em banimento imediato.</li>
+                        </ul>
+                    </div>
+
+                    <form onSubmit={handleSubmit}>
+                        <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                            <input
+                                type="checkbox"
+                                id="agree"
+                                checked={agreed}
+                                onChange={(e) => setAgreed(e.target.checked)}
+                                style={{ width: '18px', height: '18px', marginTop: '2px', cursor: 'pointer' }}
+                                required
+                            />
+                            <label htmlFor="agree" style={{ fontSize: '12px', color: '#555', cursor: 'pointer', lineHeight: '1.4' }}>
+                                Compreendo integralmente e aceito as regras de convivência do <strong>Tukro</strong>, declarando estar em total conformidade com os nossos <strong>Termos de Uso</strong>, <strong>Política de Privacidade</strong> e normas de <strong>Direitos Autorais/DMCA</strong>.
+                            </label>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button type="button" className="btn btn-gray" onClick={() => setStep(1)} style={{ padding: '10px 20px' }}>Voltar</button>
+                            <button type="submit" className="btn btn-pink btn-full" disabled={loading || !agreed} style={{ padding: '10px', fontSize: '13px' }}>
+                                {loading ? 'Sincronizando...' : 'Criar minha conta no Tukro'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="auth-page" style={{ height: 'auto', minHeight: '100vh', padding: '40px 0' }}>
             <div className="auth-card" style={{ width: '500px', maxWidth: '95%' }}>
@@ -150,7 +218,7 @@ export default function Register() {
 
                 {error && <div className="auth-error">{error}</div>}
 
-                <form className="auth-form" onSubmit={handleSubmit}>
+                <form className="auth-form" onSubmit={handleNextStep}>
                     <div className="auth-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div className="form-group">
                             <label>Nome Completo *</label>
@@ -249,7 +317,7 @@ export default function Register() {
                     </div>
 
                     <button type="submit" className="btn btn-pink btn-full" disabled={loading} style={{ padding: '10px', fontSize: '13px', marginTop: '15px' }}>
-                        {loading ? 'Criando Conta...' : 'Criar Conta'}
+                        Continuar
                     </button>
                 </form>
 

@@ -24,16 +24,25 @@ export function AppLayout({ children }) {
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
     if (!user && !isAuthPage) return null; // Wait for redirect
-    if (isAuthPage) return children; // Auth pages don't have header/footer
+
+    // Auth pages get footer but no header/chat
+    if (isAuthPage) {
+        return (
+            <>
+                <main>{children}</main>
+                <Footer />
+            </>
+        );
+    }
 
     return (
         <>
-            <Header />
+            {!isAuthPage && <Header />}
             <main className="page-layout">
                 {children}
             </main>
             <Footer />
-            <ChatOnline />
+            {!isAuthPage && <ChatOnline />}
         </>
     );
 }

@@ -187,7 +187,7 @@ const GIF_CATEGORIES = {
     ]
 };
 
-function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
+function ChatWindow({ friend, currentUser, onClose, onExpand, mode, onChangeMode }) {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [loading, setLoading] = useState(false);
@@ -499,7 +499,7 @@ export default function ChatOnline() {
                         uniqueFriends.push(f);
                     }
                 });
-                setFriends(uniqueFriends.slice(0, 10));
+                setFriends(uniqueFriends);
             } catch (e) {
                 console.error('Erro chat', e);
             }
@@ -738,6 +738,7 @@ export default function ChatOnline() {
                     }}>
                         <ChatWindow
                             friend={chat}
+                            currentUser={currentUser}
                             mode={chat.mode}
                             onClose={() => closeChat(friendId)}
                             onExpand={() => expandChat(friendId)}

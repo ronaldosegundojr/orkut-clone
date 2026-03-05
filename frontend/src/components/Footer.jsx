@@ -8,7 +8,6 @@ export default function Footer() {
                 <Link to="/privacy" style={{ color: 'var(--pink)' }}>Privacidade</Link>
                 <Link to="/terms" style={{ color: 'var(--pink)' }}>Termos de Uso</Link>
                 <Link to="/copyright" style={{ color: 'var(--pink)' }}>Direitos Autorais</Link>
-                <Link to="/help" style={{ color: 'var(--pink)' }}>Ajuda</Link>
             </div>
 
             <div style={{ maxWidth: '700px', margin: '15px auto', lineHeight: '1.4', padding: '0 20px', color: '#999' }}>

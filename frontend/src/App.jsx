@@ -28,6 +28,7 @@ import SearchResults from './pages/Search/SearchResults';
 import Terms from './pages/Legal/Terms';
 import Privacy from './pages/Legal/Privacy';
 import Copyright from './pages/Legal/Copyright';
+import About from './pages/Legal/About';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -90,6 +91,7 @@ function App() {
           <Route path="/terms" element={<AppLayout><Terms /></AppLayout>} />
           <Route path="/privacy" element={<AppLayout><Privacy /></AppLayout>} />
           <Route path="/copyright" element={<AppLayout><Copyright /></AppLayout>} />
+          <Route path="/about" element={<AppLayout><About /></AppLayout>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

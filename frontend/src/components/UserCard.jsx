@@ -86,7 +86,7 @@ export default function UserCard({ user, stats, onAddFriend }) {
                                 onClick={() => onAddFriend && onAddFriend()}
                                 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}
                             >
-                                <Users size={12} color="#f9c" /> adicionar amigo
+                                <Users size={12} color="#f9c" /> adicionar amigo(a)
                             </div>
                             <Link
                                 to={`/messages?userId=${encodeURIComponent(user.username)}`}
