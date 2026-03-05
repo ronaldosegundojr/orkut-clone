@@ -22,6 +22,8 @@ export default function Home() {
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteLoading, setInviteLoading] = useState(false);
     const [sentRequests, setSentRequests] = useState([]);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [cancelRequestId, setCancelRequestId] = useState(null);
 
     const loadHomeData = async () => {
         try {
@@ -87,6 +89,22 @@ export default function Home() {
                 alert('Erro ao adicionar amigo: ' + errorMsg);
             }
         }
+    };
+
+    const handleCancelRequest = async () => {
+        try {
+            await api.delete(`/friends/${cancelRequestId}`);
+            setSentRequests(prev => prev.filter(id => id !== cancelRequestId));
+        } catch (e) {
+            alert('Erro ao cancelar solicitação');
+        }
+        setShowCancelModal(false);
+        setCancelRequestId(null);
+    };
+
+    const handleKeepRequest = () => {
+        setShowCancelModal(false);
+        setCancelRequestId(null);
     };
 
     const handleApproveTestimonial = async (id) => {
@@ -234,9 +252,15 @@ export default function Home() {
                                     </Link>
                                     <button
                                         className="btn btn-outline btn-sm"
-                                        style={{ marginTop: '6px', fontSize: '9px', padding: '2px 4px', width: '100%', whiteSpace: 'nowrap', background: sentRequests.includes(s.id) ? '#e0e0e0' : '', cursor: sentRequests.includes(s.id) ? 'default' : 'pointer' }}
-                                        onClick={() => !sentRequests.includes(s.id) && handleAddFriend(s.id)}
-                                        disabled={sentRequests.includes(s.id)}
+                                        style={{ marginTop: '6px', fontSize: '9px', padding: '2px 4px', width: '100%', whiteSpace: 'nowrap', background: sentRequests.includes(s.id) ? '#e0e0e0' : '', cursor: sentRequests.includes(s.id) ? 'pointer' : 'pointer' }}
+                                        onClick={() => {
+                                            if (sentRequests.includes(s.id)) {
+                                                setCancelRequestId(s.id);
+                                                setShowCancelModal(true);
+                                            } else {
+                                                handleAddFriend(s.id);
+                                            }
+                                        }}
                                     >
                                         {sentRequests.includes(s.id) ? 'enviada' : 'adicionar'}
                                     </button>
@@ -443,6 +467,35 @@ export default function Home() {
                                     onClick={handleSendInvite}
                                 >
                                     {inviteLoading ? 'Enviando...' : 'Enviar Convite'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Cancel Request Modal */}
+                {showCancelModal && (
+                    <div 
+                        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        onClick={handleKeepRequest}
+                    >
+                        <div className="card" style={{ width: '300px', padding: '20px' }} onClick={e => e.stopPropagation()}>
+                            <h3 style={{ marginBottom: '15px', color: '#1e4078', fontSize: '14px' }}>Solicitação de Amizade</h3>
+                            <p style={{ fontSize: '12px', marginBottom: '20px' }}>O que você deseja fazer?</p>
+                            <div style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                                <button 
+                                    className="btn btn-outline" 
+                                    style={{ width: '100%', fontSize: '12px' }}
+                                    onClick={handleCancelRequest}
+                                >
+                                    Cancelar solicitação
+                                </button>
+                                <button 
+                                    className="btn btn-pink" 
+                                    style={{ width: '100%', fontSize: '12px' }}
+                                    onClick={handleKeepRequest}
+                                >
+                                    Manter solicitação
                                 </button>
                             </div>
                         </div>

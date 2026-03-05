@@ -31,6 +31,7 @@ export default function Profile() {
     const [editDetails, setEditDetails] = useState(false);
     const [detailsForm, setDetailsForm] = useState({});
     const [testimonials, setTestimonials] = useState([]);
+    const [showCancelModal, setShowCancelModal] = useState(false);
 
     const loadProfile = async () => {
         if (!profileUsername) return;
@@ -112,7 +113,12 @@ export default function Profile() {
                 setTimeout(() => loadProfile(), 100);
             } else if (action === 'cancelFriend') {
                 await api.delete(`/friends/${profile.id}`);
+                setShowCancelModal(false);
                 setTimeout(() => loadProfile(), 100);
+            } else if (action === 'showCancelModal') {
+                setShowCancelModal(true);
+            } else if (action === 'hideCancelModal') {
+                setShowCancelModal(false);
             } else if (action === 'vote') {
                 await api.post(`/users/${profile.id}/vote`, { type });
                 loadProfile();
@@ -149,11 +155,7 @@ export default function Profile() {
                                 <button className="btn btn-pink btn-full" onClick={() => handleAction('addFriend')}>Adicionar Amigo</button>
                             )}
                             {profile.friendship?.status === 'pending' && (
-                                <button className="btn btn-gray btn-full" onClick={() => {
-                                    if (confirm('Cancelar solicitação de amizade? Cancelar ou Manter')) {
-                                        handleAction('cancelFriend');
-                                    }
-                                }}>Solicitação enviada</button>
+                                <button className="btn btn-gray btn-full" onClick={() => handleAction('showCancelModal')}>Solicitação enviada</button>
                             )}
                             {profile.friendship?.status === 'accepted' && (
                                 <button className="btn btn-outline btn-full" disabled>Vocês são amigos</button>
