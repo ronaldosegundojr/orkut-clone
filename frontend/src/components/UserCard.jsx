@@ -130,10 +130,10 @@ export default function UserCard({ user, stats, onAddFriend }) {
                     <Link to={`/testimonials/user/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#ff66aa' }}>✍️</span> depoimentos
                     </Link>
-                    <Link to={`/profile/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to={`/profile/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#33cc33' }}>📰</span> atualizações
                     </Link>
-                    <Link to="/events" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to="/events" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#9933cc' }}>📅</span> eventos
                     </Link>
                 </div>

@@ -790,13 +790,112 @@ textarea {
   border-bottom: none;
 }
 
-/* ===== MISC ===== */
-.sidebar-title {
-  color: #1e4078;
+/* ===== RESPONSIVE ===== */
+@media (max-width: 980px) {
+  .three-col {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .col-left,
+  .col-right {
+    order: 1;
+    /* Main content first, sidebars after? Or sidebars first? Orkut usually has sidebar-main-sidebar. Let's do Main (Center) first on mobile. */
+  }
+
+  .col-center {
+    order: 0;
+  }
+
+  .two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .page-layout {
+    padding: 10px;
+  }
 }
 
-.sidebar-count {
-  color: #6695b3;
+@media (max-width: 768px) {
+  .header-container {
+    height: auto !important;
+    flex-direction: column !important;
+    gap: 10px;
+    padding: 10px !important;
+  }
+
+  .header-logo {
+    width: 100% !important;
+    background: transparent !important;
+    margin: 0 !important;
+  }
+
+  .header-nav-container {
+    width: 100% !important;
+    border-radius: 4px !important;
+    background: #8da5c9 !important;
+    flex-direction: column !important;
+    padding: 10px !important;
+    height: auto !important;
+  }
+
+  .header-nav {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .header-right {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin-top: 10px !important;
+  }
+
+  .search-container input {
+    width: 150px !important;
+  }
+
+  .three-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Orkut detail sections stacking */
+  .profile-bio-box {
+    flex-direction: column;
+  }
+
+  .profile-bio-label {
+    width: 100%;
+    text-align: left;
+    padding: 8px 15px;
+    border-bottom: 1px dotted #c9d7f1;
+  }
+
+  .profile-bio-content {
+    padding: 15px;
+  }
+
+  .friends-page-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .friends-page-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .user-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .header-nav {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    text-align: center;
+  }
 }
 
 .sidebar-footer-link {
@@ -872,3 +971,13 @@ textarea {
     padding: 8px;
   }
 }
+ / *   M o b i l e   S p e c i f i c   F i x e s   * / 
+ @ m e d i a   ( m a x - w i d t h :   7 6 8 p x )   { 
+     . l o g i n - c o n t a i n e r   {   f l e x - d i r e c t i o n :   c o l u m n   ! i m p o r t a n t ;   p a d d i n g :   1 0 p x   ! i m p o r t a n t ;   } 
+     . l o g i n - l e f t   {   p a d d i n g - r i g h t :   0   ! i m p o r t a n t ;   m a r g i n - b o t t o m :   2 0 p x   ! i m p o r t a n t ;   } 
+     . l o g i n - r i g h t   {   w i d t h :   1 0 0 %   ! i m p o r t a n t ;   } 
+     . a u t h - f o r m   d i v   {   g r i d - t e m p l a t e - c o l u m n s :   1 f r   ! i m p o r t a n t ;   } 
+     . f o r m - g r o u p   {   g r i d - c o l u m n :   s p a n   1   ! i m p o r t a n t ;   } 
+     . a u t h - c a r d   {   w i d t h :   1 0 0 %   ! i m p o r t a n t ;   p a d d i n g :   1 5 p x   ! i m p o r t a n t ;   } 
+ }  
+ 

@@ -151,7 +151,7 @@ export default function Register() {
                 {error && <div className="auth-error">{error}</div>}
 
                 <form className="auth-form" onSubmit={handleSubmit}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                    <div className="auth-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                         <div className="form-group">
                             <label>Nome Completo *</label>
                             <input type="text" value={formData.fullName} onChange={e => setFormData({ ...formData, fullName: e.target.value })} required />

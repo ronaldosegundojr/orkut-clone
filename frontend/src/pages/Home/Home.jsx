@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import api from '../../api/client';
 import UserCard from '../../components/UserCard';
 import SidebarList from '../../components/SidebarList';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Home() {
     const { user } = useAuth();
@@ -16,6 +17,10 @@ export default function Home() {
     const [pendingTestimonials, setPendingTestimonials] = useState([]);
     const [testimonialText, setTestimonialText] = useState('');
     const [showTestimonialForm, setShowTestimonialForm] = useState(null);
+    const [carouselIndex, setCarouselIndex] = useState(0);
+    const [showInviteModal, setShowInviteModal] = useState(false);
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteLoading, setInviteLoading] = useState(false);
 
     const loadHomeData = async () => {
         try {
@@ -108,6 +113,33 @@ export default function Home() {
         }
     };
 
+    const handleSendInvite = async () => {
+        if (!inviteEmail) return;
+        setInviteLoading(true);
+        try {
+            await api.post('/auth/invite', { email: inviteEmail, senderName: user.username });
+            alert('Convite enviado com sucesso!');
+            setInviteEmail('');
+            setShowInviteModal(false);
+        } catch (e) {
+            alert(e.response?.data?.error || 'Erro ao enviar convite');
+        } finally {
+            setInviteLoading(false);
+        }
+    };
+
+    const nextCarousel = () => {
+        if (carouselIndex + 6 < suggestions.length) {
+            setCarouselIndex(carouselIndex + 1);
+        }
+    };
+
+    const prevCarousel = () => {
+        if (carouselIndex > 0) {
+            setCarouselIndex(carouselIndex - 1);
+        }
+    };
+
     if (!user) return null;
 
     return (
@@ -141,21 +173,41 @@ export default function Home() {
 
             <div className="col-center">
                 <div className="card" style={{ marginBottom: '16px', borderRadius: '8px', border: '1px solid #c9d7f1' }}>
-                    <div className="card-header" style={{ borderBottom: '1px solid #f0f0f0' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 'bold' }}>👫 Sugestões de amizade</span>
+                    <div className="card-header" style={{ borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ color: '#1155cc', fontSize: '10px' }}>●</span>
+                        <span style={{ fontSize: '11px', color: '#333' }}>Amigos sugeridos pelo orkut</span>
                     </div>
-                    <div className="card-body">
-                        <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
-                            {suggestions.map(s => (
-                                <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '100px', flexShrink: 0 }}>
+                    <div className="card-body" style={{ position: 'relative', padding: '10px 30px' }}>
+                        {suggestions.length > 6 && (
+                            <>
+                                <button
+                                    onClick={prevCarousel}
+                                    disabled={carouselIndex === 0}
+                                    style={{ position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: carouselIndex === 0 ? '#ccc' : '#1155cc' }}
+                                >
+                                    <ChevronLeft size={20} />
+                                </button>
+                                <button
+                                    onClick={nextCarousel}
+                                    disabled={carouselIndex + 6 >= suggestions.length}
+                                    style={{ position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: carouselIndex + 6 >= suggestions.length ? '#ccc' : '#1155cc' }}
+                                >
+                                    <ChevronRight size={20} />
+                                </button>
+                            </>
+                        )}
+
+                        <div style={{ display: 'flex', gap: '8px', overflow: 'hidden' }}>
+                            {suggestions.slice(carouselIndex, carouselIndex + 6).map(s => (
+                                <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90px', flexShrink: 0 }}>
                                     <Link to={`/profile/${encodeURIComponent(s.username)}`}>
-                                        <img src={s.avatar} alt={s.username} style={{ width: '60px', height: '60px', borderRadius: '4px', border: '1px solid #ddd', marginBottom: '4px' }} />
+                                        <img src={s.avatar} alt={s.username} style={{ width: '80px', height: '80px', objectFit: 'cover', border: '1px solid #333', background: 'black', padding: '0' }} />
                                     </Link>
-                                    <Link to={`/profile/${encodeURIComponent(s.username)}`} style={{ fontSize: '11px', color: '#1155cc', textDecoration: 'none', textAlign: 'center', width: '90px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <Link to={`/profile/${encodeURIComponent(s.username)}`} style={{ fontSize: '10px', color: '#1155cc', textDecoration: 'none', textAlign: 'center', width: '80px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
                                         {s.username}
                                     </Link>
-                                    <button className="btn btn-outline btn-sm" style={{ marginTop: '4px', fontSize: '9px', padding: '2px 8px' }} onClick={() => handleAddFriend(s.id)}>
-                                        Adicionar
+                                    <button className="btn btn-gray btn-sm" style={{ marginTop: '4px', fontSize: '10px', padding: '1px 6px', fontWeight: 'normal', color: '#1155cc', background: '#f0f0f0', border: '1px solid #ccc' }} onClick={() => handleAddFriend(s.id)}>
+                                        add friend
                                     </button>
                                 </div>
                             ))}
@@ -301,6 +353,66 @@ export default function Home() {
                     viewAllLink={`/${encodeURIComponent(user.username)}/communities`}
                     type="communities"
                 />
+
+                {/* Invites Box */}
+                <div className="card" style={{ marginTop: '12px', border: '1px solid #c9d7f1', borderRadius: '8px' }}>
+                    <div className="card-body" style={{ textAlign: 'center', padding: '15px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                            <div style={{ position: 'relative', width: '60px', height: '60px', marginBottom: '5px' }}>
+                                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', borderRadius: '50%', border: '4px solid #d12b8f', opacity: 1 }}></div>
+                                <div style={{ width: '100%', height: '100%', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#d12b8f', fontSize: '30px' }}>
+                                    ○
+                                </div>
+                            </div>
+                            <div style={{ fontSize: '18px', color: '#666' }}>10 convites</div>
+                            <div style={{ fontSize: '13px', color: '#333' }}>restantes para o novo orkut</div>
+
+                            <button
+                                onClick={() => setShowInviteModal(true)}
+                                style={{
+                                    marginTop: '8px',
+                                    padding: '4px 20px',
+                                    background: '#f0f0f0',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '2px',
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    fontWeight: 'normal',
+                                    color: '#333'
+                                }}
+                            >
+                                convide seus amigos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Invite Modal */}
+                {showInviteModal && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div className="card" style={{ width: '400px', padding: '20px' }}>
+                            <h3 style={{ marginBottom: '15px', color: '#1e4078' }}>Convidar amigos para o Tukro</h3>
+                            <p style={{ fontSize: '12px', marginBottom: '15px' }}>Insira o e-mail do seu amigo abaixo para enviar um convite exclusivo.</p>
+                            <input
+                                type="email"
+                                placeholder="ex: amigo@email.com"
+                                value={inviteEmail}
+                                onChange={(e) => setInviteEmail(e.target.value)}
+                                style={{ marginBottom: '15px' }}
+                            />
+                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                                <button className="btn btn-gray" onClick={() => setShowInviteModal(false)}>Cancelar</button>
+                                <button
+                                    className="btn btn-pink"
+                                    disabled={inviteLoading || !inviteEmail}
+                                    onClick={handleSendInvite}
+                                >
+                                    {inviteLoading ? 'Enviando...' : 'Enviar Convite'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

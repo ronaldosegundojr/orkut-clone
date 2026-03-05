@@ -137,4 +137,59 @@ router.post('/reset-password', async (req, res) => {
     }
 });
 
+// Helper to send Invitation Email
+async function sendInviteEmail(targetEmail, senderName) {
+    // TIP: For a real free service, you can use a Gmail account with "App Passwords" 
+    // or services like SendGrid/Mailgun which have free tiers of ~100 emails/day.
+    let testAccount = await nodemailer.createTestAccount();
+
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+            user: testAccount.user,
+            pass: testAccount.pass,
+        },
+    });
+
+    const registerLink = `http://localhost:5173/register?ref=${encodeURIComponent(senderName)}`;
+
+    const info = await transporter.sendMail({
+        from: '"Tukro Invitations" <invites@tukro.com>',
+        to: targetEmail,
+        subject: `${senderName} convidou você para o Tukro!`,
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; border: 1px solid #c9d7f1; padding: 20px;">
+                <h2 style="color: #d12b8f;">Tukro</h2>
+                <p>Olá!</p>
+                <p>Seu amigo <strong>${senderName}</strong> está te convidando para participar do <strong>Tukro</strong>, a rede social que te conecta ao passado e ao futuro.</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${registerLink}" style="background-color: #d12b8f; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px; font-weight: bold;">Aceitar Convite</a>
+                </div>
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="font-size: 11px; color: #999;">Tukro Beta - Onde a nostalgia vive.</p>
+            </div>
+        `,
+    });
+
+    console.log(`\n📧 [CONVITE ENVIADO] Link de visualização: ${nodemailer.getTestMessageUrl(info)}\n`);
+}
+
+router.post('/invite', async (req, res) => {
+    try {
+        const { email, senderName } = req.body;
+        if (!email || !senderName) return res.status(400).json({ error: 'E-mail e/ou nome do remetente faltando.' });
+
+        // In a real app, you might check if the email is already registered
+        const existing = await db.getAsync('SELECT id FROM users WHERE email = ?', [email]);
+        if (existing) return res.status(400).json({ error: 'Este e-mail já está cadastrado no Tukro.' });
+
+        await sendInviteEmail(email, senderName);
+        res.json({ message: 'Convite enviado com sucesso!' });
+    } catch (e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 module.exports = router;

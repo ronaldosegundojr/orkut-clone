@@ -25,6 +25,9 @@ import Videos from './pages/Videos/Videos';
 import VideoDetail from './pages/Videos/VideoDetail';
 import Messages from './pages/Messages/Messages';
 import SearchResults from './pages/Search/SearchResults';
+import Terms from './pages/Legal/Terms';
+import Privacy from './pages/Legal/Privacy';
+import Copyright from './pages/Legal/Copyright';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -84,6 +87,9 @@ function App() {
           <Route path="/events" element={<ProtectedRoute><AppLayout><Events /></AppLayout></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><AppLayout><Messages /></AppLayout></ProtectedRoute>} />
           <Route path="/search" element={<ProtectedRoute><AppLayout><SearchResults /></AppLayout></ProtectedRoute>} />
+          <Route path="/terms" element={<AppLayout><Terms /></AppLayout>} />
+          <Route path="/privacy" element={<AppLayout><Privacy /></AppLayout>} />
+          <Route path="/copyright" element={<AppLayout><Copyright /></AppLayout>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

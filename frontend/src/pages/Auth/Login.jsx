@@ -23,9 +23,9 @@ export default function Login() {
     };
 
     return (
-        <div style={{ backgroundColor: '#d4e3f8', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
-            <div style={{ display: 'flex', maxWidth: '800px', width: '100%', marginTop: '50px', backgroundColor: '#fff', padding: '15px' }}>
-                <div style={{ flex: 1, paddingRight: '20px' }}>
+        <div className="login-page" style={{ backgroundColor: '#d4e3f8', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', fontFamily: 'Arial, sans-serif' }}>
+            <div className="login-container" style={{ display: 'flex', maxWidth: '800px', width: '100%', marginTop: '50px', backgroundColor: '#fff', padding: '15px' }}>
+                <div className="login-left" style={{ flex: 1, paddingRight: '20px' }}>
                     <div style={{ textAlign: 'center', marginTop: '40px', marginBottom: '40px' }}>
                         <h1 style={{ color: '#d12b8f', fontSize: '60px', margin: 0, letterSpacing: '-2px', display: 'inline-block' }}>tukro</h1>
                         <span style={{ color: '#c3c3c3', fontSize: '12px', verticalAlign: 'top', marginLeft: '5px' }}>beta</span>
@@ -37,7 +37,7 @@ export default function Login() {
                     </div>
                 </div>
 
-                <div style={{ width: '300px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                <div className="login-right" style={{ width: '300px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     <div style={{ backgroundColor: '#eef4fa', border: '1px solid #c9d7f1', padding: '15px', paddingBottom: '25px' }}>
                         <div style={{ textAlign: 'center', fontSize: '12px', color: '#333', marginBottom: '15px' }}>Acesse o tukro com a sua conta</div>
 

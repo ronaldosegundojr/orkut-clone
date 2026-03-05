@@ -39,19 +39,19 @@ export default function Header() {
     if (!user) return null;
 
     return (
-        <header style={{ background: '#d4dded', position: 'relative', zIndex: 10, borderBottom: '1px solid #c9d7f1' }}>
-            <div className="page-layout" style={{ display: 'flex', alignItems: 'stretch', padding: '0', height: '36px' }}>
+        <header className="header-wrapper" style={{ background: '#d4dded', position: 'relative', zIndex: 10, borderBottom: '1px solid #c9d7f1' }}>
+            <div className="page-layout header-container" style={{ display: 'flex', alignItems: 'stretch', padding: '0', height: '36px' }}>
 
                 {/* Logo Area (White) */}
-                <div style={{ background: 'white', width: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
+                <div className="header-logo" style={{ background: 'white', width: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px' }}>
                     <Link to="/" style={{ color: '#d12b8f', textDecoration: 'none', fontWeight: 'bold', fontSize: '24px', letterSpacing: '-1px', fontFamily: 'Arial, sans-serif' }}>
                         tukro<span style={{ fontSize: '12px', color: '#c9d7f1' }}>.com</span>
                     </Link>
                 </div>
 
                 {/* Navigation Area (Blue) */}
-                <div style={{ flex: 1, background: '#8da5c9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
-                    <nav style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold' }}>
+                <div className="header-nav-container" style={{ flex: 1, background: '#8da5c9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
+                    <nav className="header-nav" style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold' }}>
                         <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Início</Link>
                         <Link to={`/profile/${encodeURIComponent(user.username)}`} style={{ color: 'white', textDecoration: 'none' }}>Perfil</Link>
                         <Link to={`/${encodeURIComponent(user.username)}/scraps`} style={{ color: 'white', textDecoration: 'none' }}>Página de recados</Link>
@@ -59,11 +59,11 @@ export default function Header() {
                         <Link to={`/${encodeURIComponent(user.username)}/communities`} style={{ color: 'white', textDecoration: 'none' }}>Comunidades</Link>
                     </nav>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div className="header-right" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                         <span style={{ color: 'white', fontSize: '11px', cursor: 'pointer' }} onClick={logout}>Sair</span>
 
                         {/* Search */}
-                        <div style={{ position: 'relative' }}>
+                        <div className="search-container" style={{ position: 'relative' }}>
                             <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #7a93b7', padding: '2px', borderRadius: '4px' }}>
                                 <input
                                     type="text"
