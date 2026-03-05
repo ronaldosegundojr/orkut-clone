@@ -109,13 +109,21 @@ export default function Profile() {
         try {
             if (action === 'addFriend') {
                 await api.post('/friends/request', { friend_id: profile.id });
-                loadProfile();
+                setTimeout(() => loadProfile(), 100);
+            } else if (action === 'cancelFriend') {
+                await api.delete(`/friends/${profile.id}`);
+                setTimeout(() => loadProfile(), 100);
             } else if (action === 'vote') {
                 await api.post(`/users/${profile.id}/vote`, { type });
                 loadProfile();
             }
         } catch (e) {
-            alert(e.response?.data?.error || 'Erro');
+            const errorMsg = e.response?.data?.error || 'Erro';
+            if (errorMsg === 'Solicitação já existe') {
+                setTimeout(() => loadProfile(), 100);
+            } else {
+                alert(errorMsg);
+            }
         }
     };
 
@@ -131,6 +139,7 @@ export default function Profile() {
                     user={profile}
                     stats={profile.stats}
                     onAddFriend={() => handleAction('addFriend')}
+                    friendship={profile.friendship}
                 />
 
                 {!isMe && (
@@ -140,7 +149,14 @@ export default function Profile() {
                                 <button className="btn btn-pink btn-full" onClick={() => handleAction('addFriend')}>Adicionar Amigo</button>
                             )}
                             {profile.friendship?.status === 'pending' && (
-                                <button className="btn btn-gray btn-full" disabled>Solicitação enviada</button>
+                                <button className="btn btn-gray btn-full" onClick={() => {
+                                    if (confirm('Cancelar solicitação de amizade? Cancelar ou Manter')) {
+                                        handleAction('cancelFriend');
+                                    }
+                                }}>Solicitação enviada</button>
+                            )}
+                            {profile.friendship?.status === 'accepted' && (
+                                <button className="btn btn-outline btn-full" disabled>Vocês são amigos</button>
                             )}
                             <Link to={`/${profile.username}/scraps`} className="btn btn-outline btn-full">Deixar recado</Link>
                             <Link to={`/messages?userId=${profile.username}`} className="btn btn-outline btn-full">Enviar mensagem</Link>

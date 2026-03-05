@@ -52,7 +52,7 @@ router.get('/:idOrUsername', authMiddleware, async (req, res) => {
             db.getAsync('SELECT COUNT(*) as c FROM photos WHERE owner_id = ?', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM videos WHERE owner_id = ?', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM user_votes WHERE target_id = ? AND type = "fan"', [profileId]),
-            db.getAsync('SELECT COUNT(*) as c FROM friends WHERE user_id = ? AND status = "accepted"', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM friends WHERE (user_id = ? OR friend_id = ?) AND status = "accepted"', [profileId, profileId]),
             db.allAsync('SELECT type, COUNT(*) as c FROM user_votes WHERE target_id = ? GROUP BY type', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM community_members WHERE user_id = ?', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM testimonials WHERE target_id = ? AND status = "approved"', [profileId])

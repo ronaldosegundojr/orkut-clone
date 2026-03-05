@@ -61,7 +61,7 @@ export default function Friends() {
     return (
         <div className="three-col">
             <div className="col-left">
-                <UserCard user={isMe ? user : targetUser} stats={targetUser?.stats} />
+                <UserCard user={isMe ? user : targetUser} stats={targetUser?.stats} friendship={targetUser?.friendship} />
             </div>
 
             <div className="col-center">

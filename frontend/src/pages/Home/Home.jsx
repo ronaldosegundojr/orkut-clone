@@ -21,21 +21,24 @@ export default function Home() {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteLoading, setInviteLoading] = useState(false);
+    const [sentRequests, setSentRequests] = useState([]);
 
     const loadHomeData = async () => {
         try {
-            const [userRes, scrapsRes, friendsRes, commRes, suggRes] = await Promise.all([
+            const [userRes, scrapsRes, friendsRes, commRes, suggRes, sentRes] = await Promise.all([
                 api.get(`/users/${encodeURIComponent(user.username)}`),
                 api.get(`/scraps/${encodeURIComponent(user.username)}`),
                 api.get(`/friends/${encodeURIComponent(user.username)}`),
-                api.get(`/communities/user/${user.id}`), // standardizing to use ID
-                api.get(`/friends/suggestions/${encodeURIComponent(user.username)}`)
+                api.get(`/communities/user/${user.id}`),
+                api.get(`/friends/suggestions/${encodeURIComponent(user.username)}`),
+                api.get('/friends/requests/sent')
             ]);
             setStats(userRes.data.stats);
             setRecentScraps(scrapsRes.data.slice(0, 5));
             setFriends(friendsRes.data.slice(0, 9));
             setCommunities(commRes.data.slice(0, 9));
             setSuggestions(suggRes.data);
+            setSentRequests(sentRes.data.map(r => r.id));
         } catch (e) {
             console.error('Home load error:', e);
         }
@@ -74,10 +77,15 @@ export default function Home() {
     const handleAddFriend = async (friendId) => {
         try {
             await api.post('/friends/request', { friend_id: friendId });
-            setSuggestions(prev => prev.filter(s => s.id !== friendId));
+            setSentRequests(prev => [...prev, friendId]);
             alert('Convite enviado!');
         } catch (e) {
-            alert('Erro ao adicionar amigo');
+            const errorMsg = e.response?.data?.error || e.message;
+            if (errorMsg === 'Solicitação já existe') {
+                setSentRequests(prev => [...prev, friendId]);
+            } else {
+                alert('Erro ao adicionar amigo: ' + errorMsg);
+            }
         }
     };
 
@@ -129,7 +137,7 @@ export default function Home() {
     };
 
     const nextCarousel = () => {
-        if (carouselIndex + 4 < suggestions.length) {
+        if (carouselIndex < suggestions.length - 4) {
             setCarouselIndex(prev => prev + 1);
         }
     };
@@ -184,31 +192,33 @@ export default function Home() {
                                     onClick={prevCarousel}
                                     disabled={carouselIndex === 0}
                                     style={{
-                                        position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)',
-                                        background: carouselIndex === 0 ? '#f0f0f0' : '#d12b8f',
-                                        border: 'none', borderRadius: '50%', width: '32px', height: '32px',
+                                        position: 'absolute', left: '5px', top: '50%', transform: 'translateY(-50%)',
+                                        background: carouselIndex === 0 ? '#e0e0e0' : '#d12b8f',
+                                        border: 'none', borderRadius: '50%', width: '28px', height: '28px',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                                         cursor: carouselIndex === 0 ? 'default' : 'pointer', zIndex: 10,
-                                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)', color: 'white',
-                                        transition: 'all 0.2s'
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.3)', color: 'white',
+                                        transition: 'all 0.2s', opacity: carouselIndex === 0 ? 0.5 : 1
                                     }}
+                                    title="Anterior"
                                 >
-                                    <ChevronLeft size={20} />
+                                    <ChevronLeft size={16} />
                                 </button>
                                 <button
                                     onClick={nextCarousel}
-                                    disabled={carouselIndex + 4 >= suggestions.length}
+                                    disabled={carouselIndex >= suggestions.length - 4}
                                     style={{
-                                        position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                                        background: carouselIndex + 4 >= suggestions.length ? '#f0f0f0' : '#d12b8f',
-                                        border: 'none', borderRadius: '50%', width: '32px', height: '32px',
+                                        position: 'absolute', right: '5px', top: '50%', transform: 'translateY(-50%)',
+                                        background: carouselIndex >= suggestions.length - 4 ? '#e0e0e0' : '#d12b8f',
+                                        border: 'none', borderRadius: '50%', width: '28px', height: '28px',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        cursor: carouselIndex + 4 >= suggestions.length ? 'default' : 'pointer', zIndex: 10,
-                                        boxShadow: '0 2px 5px rgba(0,0,0,0.2)', color: 'white',
-                                        transition: 'all 0.2s'
+                                        cursor: carouselIndex >= suggestions.length - 4 ? 'default' : 'pointer', zIndex: 10,
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.3)', color: 'white',
+                                        transition: 'all 0.2s', opacity: carouselIndex >= suggestions.length - 4 ? 0.5 : 1
                                     }}
+                                    title="Próximo"
                                 >
-                                    <ChevronRight size={20} />
+                                    <ChevronRight size={16} />
                                 </button>
                             </>
                         )}
@@ -224,10 +234,11 @@ export default function Home() {
                                     </Link>
                                     <button
                                         className="btn btn-outline btn-sm"
-                                        style={{ marginTop: '6px', fontSize: '9px', padding: '2px 6px', width: '100%', whiteSpace: 'nowrap' }}
-                                        onClick={() => handleAddFriend(s.id)}
+                                        style={{ marginTop: '6px', fontSize: '9px', padding: '2px 4px', width: '100%', whiteSpace: 'nowrap', background: sentRequests.includes(s.id) ? '#e0e0e0' : '', cursor: sentRequests.includes(s.id) ? 'default' : 'pointer' }}
+                                        onClick={() => !sentRequests.includes(s.id) && handleAddFriend(s.id)}
+                                        disabled={sentRequests.includes(s.id)}
                                     >
-                                        adicionar amigo(a)
+                                        {sentRequests.includes(s.id) ? 'enviada' : 'adicionar'}
                                     </button>
                                 </div>
                             ))}

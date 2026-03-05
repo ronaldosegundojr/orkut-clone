@@ -4,19 +4,21 @@ import api from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useState, useRef } from 'react';
 
-export default function UserCard({ user, stats, onAddFriend }) {
+export default function UserCard({ user, stats, onAddFriend, friendship }) {
     const { user: currentUser, updateUser } = useAuth();
     const [showPhotoOptions, setShowPhotoOptions] = useState(false);
     const fileInputRef = useRef(null);
 
     if (!user) return null;
     const isMe = currentUser?.username === user?.username;
+    const isPending = friendship?.status === 'pending';
+    const isFriend = friendship?.status === 'accepted';
 
     const handlePhotoUpdate = async (avatarUrl) => {
         try {
             await api.put(`/users/${user.id}`, { avatar: avatarUrl });
             updateUser({ ...currentUser, avatar: avatarUrl });
-            window.location.reload();
+            setShowPhotoOptions(false);
         } catch (e) {
             alert('Erro ao atualizar foto');
         }
@@ -82,12 +84,24 @@ export default function UserCard({ user, stats, onAddFriend }) {
                     <>
                         <div style={{ borderTop: '1px solid #c9d7f1', margin: '8px 0' }}></div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '8px' }}>
-                            <div
-                                onClick={() => onAddFriend && onAddFriend()}
-                                style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}
-                            >
-                                <Users size={12} color="#f9c" /> adicionar amigo(a)
-                            </div>
+                            {!isPending && !isFriend && (
+                                <div
+                                    onClick={() => onAddFriend && onAddFriend()}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}
+                                >
+                                    <Users size={12} color="#f9c" /> adicionar amigo(a)
+                                </div>
+                            )}
+                            {isPending && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#888', cursor: 'default' }}>
+                                    <Users size={12} color="#888" /> solicitação enviada
+                                </div>
+                            )}
+                            {isFriend && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'default' }}>
+                                    <Users size={12} color="#3cb371" /> amigos
+                                </div>
+                            )}
                             <Link
                                 to={`/messages?userId=${encodeURIComponent(user.username)}`}
                                 style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}

@@ -17,6 +17,18 @@ router.get('/requests/pending', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+router.get('/requests/sent', authMiddleware, async (req, res) => {
+  try {
+    const requests = await db.allAsync(`
+      SELECT f.id, f.friend_id as id, f.created_at, u.username, u.avatar, u.humor
+      FROM friends f JOIN users u ON u.id = f.friend_id
+      WHERE f.user_id = ? AND f.status = 'pending'
+      ORDER BY f.created_at DESC
+    `, [req.user.id]);
+    res.json(requests);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
     const { userIdOrUsername } = req.params;
@@ -32,10 +44,10 @@ router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
       SELECT u.id, u.username, u.avatar, u.humor, u.city,
         f.id as friendship_id, f.status
       FROM friends f
-      JOIN users u ON u.id = f.friend_id
-      WHERE f.user_id = ? AND f.status = 'accepted'
+      JOIN users u ON u.id = CASE WHEN f.user_id = ? THEN f.friend_id ELSE f.user_id END
+      WHERE (f.user_id = ? OR f.friend_id = ?) AND f.status = 'accepted'
       ORDER BY u.username
-    `, [userId]);
+    `, [userId, userId, userId]);
     res.json(friends);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
