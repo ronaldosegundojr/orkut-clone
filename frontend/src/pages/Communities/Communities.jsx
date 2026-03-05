@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
 
 export default function Communities() {
     const { user } = useAuth();
+    const { username } = useParams();
     const navigate = useNavigate();
     const [communities, setCommunities] = useState([]);
     const [myCommunities, setMyCommunities] = useState([]);
     const [q, setQ] = useState('');
-    const [tab, setTab] = useState('all');
+    const [tab, setTab] = useState(username ? 'mine' : 'all');
     const [loading, setLoading] = useState(true);
     const [showCreate, setShowCreate] = useState(false);
     const [newComm, setNewComm] = useState({ name: '', description: '', category: 'Geral' });
@@ -19,7 +20,7 @@ export default function Communities() {
         try {
             const [allRes, mineRes] = await Promise.all([
                 api.get(`/communities?q=${q}`),
-                api.get('/communities/mine')
+                api.get(username ? `/communities/user/${encodeURIComponent(username)}` : '/communities/mine')
             ]);
             setCommunities(allRes.data);
             setMyCommunities(mineRes.data);
@@ -47,7 +48,9 @@ export default function Communities() {
             <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', gap: '15px' }}>
                     <span style={{ cursor: 'pointer', opacity: tab === 'all' ? 1 : 0.6 }} onClick={() => setTab('all')}>Explorar</span>
-                    <span style={{ cursor: 'pointer', opacity: tab === 'mine' ? 1 : 0.6 }} onClick={() => setTab('mine')}>Minhas Comunidades ({myCommunities.length})</span>
+                    <span style={{ cursor: 'pointer', opacity: tab === 'mine' ? 1 : 0.6 }} onClick={() => setTab('mine')}>
+                        {username && username !== user.username ? `Comunidades de ${username}` : 'Minhas Comunidades'} ({myCommunities.length})
+                    </span>
                 </div>
                 <button className="btn btn-outline btn-sm" style={{ background: 'white', color: 'var(--pink)', border: 'none' }} onClick={() => setShowCreate(!showCreate)}>
                     + Criar Comunidade
@@ -91,9 +94,9 @@ export default function Communities() {
                                         <div className="community-card">
                                             <img src={c.image} alt={c.name} />
                                             <div className="community-info">
-                                                <div className="community-name">{c.name}</div>
+                                                <div className="community-name" style={{ color: '#1e4078' }}>{c.name}</div>
                                                 <div className="community-desc">{c.description}</div>
-                                                <div className="community-meta">{c.member_count} membros • Categoria: {c.category}</div>
+                                                <div className="community-meta" style={{ color: '#6695b3' }}>{c.member_count} membros • Categoria: {c.category}</div>
                                             </div>
                                         </div>
                                     </Link>
@@ -111,9 +114,9 @@ export default function Communities() {
                                 <div className="community-card">
                                     <img src={c.image} alt={c.name} />
                                     <div className="community-info">
-                                        <div className="community-name">{c.name}</div>
+                                        <div className="community-name" style={{ color: '#1e4078' }}>{c.name}</div>
                                         <div className="community-desc">{c.description}</div>
-                                        <div className="community-meta">{c.member_count} membros {c.owner_id === user.id ? '(Você é dono)' : ''}</div>
+                                        <div className="community-meta" style={{ color: '#6695b3' }}>{c.member_count} membros {c.owner_id === user.id ? '(Você é dono)' : ''}</div>
                                     </div>
                                 </div>
                             </Link>

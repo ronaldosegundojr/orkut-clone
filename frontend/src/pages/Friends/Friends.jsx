@@ -87,7 +87,15 @@ export default function Friends() {
                                                 <img src={f.avatar} alt={f.username} />
                                                 <div className="name">{f.username}</div>
                                             </Link>
-                                            {isMe && <button className="btn btn-gray btn-sm" style={{ marginTop: '8px', fontSize: '9px' }} onClick={() => handleRemove(f.id)}>Remover</button>}
+                                            {isMe && (
+                                                <button
+                                                    className="btn btn-outline btn-sm"
+                                                    style={{ marginTop: '8px', fontSize: '9px', padding: '2px 8px' }}
+                                                    onClick={() => handleRemove(f.id)}
+                                                >
+                                                    Remover
+                                                </button>
+                                            )}
                                         </div>
                                     ))}
                                     {friends.length === 0 && <div className="empty-state" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>{isMe ? 'Você ainda não tem amigos no Tukro.' : 'Este usuário ainda não tem amigos.'}</div>}

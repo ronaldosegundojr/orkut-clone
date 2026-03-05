@@ -77,9 +77,9 @@ export default function Photos() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
                     {photos.map(p => (
                         <div key={p.id} style={{ border: '1px solid var(--gray-border)', borderRadius: 'var(--radius)', overflow: 'hidden' }}>
-                            <div style={{ aspectRatio: '4/3', width: '100%', background: '#eee' }}>
+                            <Link to={`/photos/${p.id}`} style={{ aspectRatio: '4/3', width: '100%', background: '#eee', display: 'block' }}>
                                 <img src={p.url} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
+                            </Link>
                             <div style={{ padding: '10px' }}>
                                 <div style={{ fontSize: '11px', color: '#666', marginBottom: '6px' }}>Álbum: {p.album}</div>
                                 <div style={{ fontSize: '12px', marginBottom: '8px' }}>{p.caption || 'Sem legenda'}</div>

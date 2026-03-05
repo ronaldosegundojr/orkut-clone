@@ -200,10 +200,41 @@ export default function Home() {
                                                 {update.type === 'scrap' && update.text && (
                                                     <div style={{ fontSize: '11px', color: '#444', marginTop: '2px', fontStyle: 'italic' }}>"{update.text}"</div>
                                                 )}
-                                                {update.type === 'photo' && update.caption && (
-                                                    <div style={{ fontSize: '11px', color: '#444', marginTop: '2px' }}>{update.caption}</div>
+                                                {update.type === 'photo' && update.url && (
+                                                    <Link to={`/photos/${update.id}`} style={{ display: 'block', marginTop: '8px' }}>
+                                                        <img src={update.url} alt="Update" style={{ maxWidth: '200px', maxHeight: '150px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #ddd' }} />
+                                                    </Link>
                                                 )}
-                                                {update.type === 'video' && update.title && (
+                                                {update.type === 'video' && update.url && (
+                                                    <Link to={`/videos/${update.id}`} style={{ display: 'block', marginTop: '8px', textDecoration: 'none' }}>
+                                                        <div style={{ position: 'relative', width: '200px', height: '112px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #ddd' }}>
+                                                            {(() => {
+                                                                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                                                                const match = update.url.match(regExp);
+                                                                const videoId = (match && match[2].length === 11) ? match[2] : null;
+                                                                if (videoId) {
+                                                                    return <img src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`} alt="Thumbnail" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />;
+                                                                }
+                                                                return (
+                                                                    <div style={{ width: '100%', height: '100%', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px' }}>
+                                                                        🎬
+                                                                    </div>
+                                                                );
+                                                            })()}
+                                                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', background: 'rgba(0,0,0,0.6)', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                                                                ▶️
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ marginTop: '4px' }}>
+                                                            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#1a4078' }}>{update.title}</div>
+                                                            <div style={{ fontSize: '9px', color: '#6695b3' }}>Clique para comentar e assistir</div>
+                                                        </div>
+                                                    </Link>
+                                                )}
+                                                {update.type === 'photo' && update.caption && (
+                                                    <div style={{ fontSize: '11px', color: '#444', marginTop: '4px' }}>{update.caption}</div>
+                                                )}
+                                                {update.type === 'video' && update.title && !update.url && (
                                                     <div style={{ fontSize: '11px', color: '#444', marginTop: '2px' }}>{update.title}</div>
                                                 )}
                                                 <div style={{ fontSize: '10px', color: '#999', marginTop: '4px' }}>

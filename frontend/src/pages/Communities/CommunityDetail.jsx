@@ -47,8 +47,10 @@ export default function CommunityDetail() {
                 <div className="card" style={{ textAlign: 'center' }}>
                     <div className="card-body">
                         <img src={comm.image} alt={comm.name} style={{ width: '100%', maxWidth: '200px', borderRadius: '8px', marginBottom: '10px' }} />
-                        <h2 style={{ fontSize: '14px', marginBottom: '6px' }}>{comm.name}</h2>
-                        <div style={{ fontSize: '11px', color: '#666', marginBottom: '12px' }}>{comm.member_count} membros</div>
+                        <h2 style={{ fontSize: '14px', marginBottom: '6px', color: '#1e4078' }}>{comm.name}</h2>
+                        <Link to={`/communities/${id}/members`} style={{ fontSize: '11px', color: '#6695b3', textDecoration: 'none', display: 'block', marginBottom: '12px' }}>
+                            ({comm.member_count} membros)
+                        </Link>
 
                         <button className={`btn btn-full ${comm.isMember ? 'btn-gray' : 'btn-pink'}`} onClick={handleJoin} style={{ marginBottom: '15px' }}>
                             {comm.isMember ? 'Deixar comunidade' : 'Participar ( + )'}
@@ -62,15 +64,18 @@ export default function CommunityDetail() {
 
                         <div style={{ marginTop: '15px', textAlign: 'left', borderTop: '1px dotted #ccc', paddingTop: '10px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <strong style={{ fontSize: '11px' }}>Membros ({comm.member_count})</strong>
+                                <Link to={`/communities/${id}/members`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                                    <strong style={{ fontSize: '11px', color: '#1e4078' }}>Membros ({comm.member_count})</strong>
+                                </Link>
                                 {comm.member_count > 9 && (
                                     <Link to={`/communities/${id}/members`} style={{ fontSize: '10px', color: '#1155cc' }}>Ver todos</Link>
                                 )}
                             </div>
-                            <div className="photo-grid" style={{ marginTop: '8px' }}>
+                            <div className="friends-grid-sidebar" style={{ marginTop: '8px' }}>
                                 {comm.members.slice(0, 9).map(m => (
-                                    <Link key={m.id} to={`/profile/${m.username}`} title={m.username} className="photo-thumb">
+                                    <Link key={m.id} to={`/profile/${encodeURIComponent(m.username)}`} title={m.username} className="friend-item-sidebar">
                                         <img src={m.avatar} alt={m.username} />
+                                        <span style={{ fontSize: '9px' }}>{m.username.split(' ')[0]}</span>
                                     </Link>
                                 ))}
                             </div>

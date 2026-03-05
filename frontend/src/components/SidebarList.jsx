@@ -4,8 +4,8 @@ export default function SidebarList({ title, items, count, viewAllLink, type = '
     return (
         <div className="card" style={{ marginBottom: '12px', borderRadius: '8px', border: '1px solid #c9d7f1', boxShadow: 'none' }}>
             <div className="card-header" style={{ background: 'white', padding: '10px', display: 'flex', gap: '4px', borderBottom: 'none' }}>
-                <span className="sidebar-title" style={{ fontSize: '13px', fontWeight: 'bold' }}>{title}</span>
-                <span className="sidebar-count" style={{ fontSize: '13px' }}>({count})</span>
+                <span className="sidebar-title" style={{ fontSize: '13px', fontWeight: 'bold', color: '#1e4078' }}>{title}</span>
+                <Link to={viewAllLink} className="sidebar-count" style={{ fontSize: '13px', color: '#6695b3', textDecoration: 'none' }}>({count})</Link>
             </div>
             <div className="card-body" style={{ padding: '8px' }}>
                 <div style={{ marginBottom: '12px', display: 'flex', background: '#fff' }}>

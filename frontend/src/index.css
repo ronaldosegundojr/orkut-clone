@@ -499,7 +499,7 @@ textarea {
 .community-name {
   font-weight: bold;
   font-size: 13px;
-  color: var(--text);
+  color: var(--orkut-blue-title);
   margin-bottom: 3px;
 }
 
@@ -517,7 +517,7 @@ textarea {
 
 .community-meta {
   font-size: 10px;
-  color: var(--gray-mid);
+  color: var(--orkut-blue-link);
 }
 
 /* ===== EVENT CARD ===== */

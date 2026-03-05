@@ -16,8 +16,10 @@ import CommunityDetail from './pages/Communities/CommunityDetail';
 import CommunityMembers from './pages/Communities/CommunityMembers';
 import TopicDetail from './pages/Communities/TopicDetail';
 import Photos from './pages/Photos/Photos';
+import PhotoDetail from './pages/Photos/PhotoDetail';
 import Events from './pages/Events/Events';
 import Videos from './pages/Videos/Videos';
+import VideoDetail from './pages/Videos/VideoDetail';
 import Messages from './pages/Messages/Messages';
 import SearchResults from './pages/Search/SearchResults';
 
@@ -62,7 +64,9 @@ function App() {
           <Route path="/:username/scraps" element={<ProtectedRoute><AppLayout><Scraps /></AppLayout></ProtectedRoute>} />
           <Route path="/:username/friends" element={<ProtectedRoute><AppLayout><Friends /></AppLayout></ProtectedRoute>} />
           <Route path="/:username/photos" element={<ProtectedRoute><AppLayout><Photos /></AppLayout></ProtectedRoute>} />
+          <Route path="/photos/:id" element={<ProtectedRoute><AppLayout><PhotoDetail /></AppLayout></ProtectedRoute>} />
           <Route path="/:username/videos" element={<ProtectedRoute><AppLayout><Videos /></AppLayout></ProtectedRoute>} />
+          <Route path="/videos/:id" element={<ProtectedRoute><AppLayout><VideoDetail /></AppLayout></ProtectedRoute>} />
           <Route path="/:username/communities" element={<ProtectedRoute><AppLayout><Communities /></AppLayout></ProtectedRoute>} />
           <Route path="/scraps" element={<ProtectedRoute><AppLayout><Scraps /></AppLayout></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><AppLayout><Friends /></AppLayout></ProtectedRoute>} />
