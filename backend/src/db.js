@@ -27,6 +27,8 @@ async function initDB() {
       country TEXT DEFAULT '',
       relationship TEXT DEFAULT '',
       details TEXT DEFAULT '{}',
+      reset_token TEXT,
+      reset_expires TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     );
     CREATE TABLE IF NOT EXISTS scraps (

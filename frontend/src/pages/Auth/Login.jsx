@@ -69,7 +69,7 @@ export default function Login() {
                             </div>
                         </form>
                         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                            <a href="#" style={{ color: '#1155cc', fontSize: '11px', textDecoration: 'underline' }}>Não consegue acessar a sua conta?</a>
+                            <Link to="/forgot-password" style={{ color: '#1155cc', fontSize: '11px', textDecoration: 'underline' }}>esqueci a senha</Link>
                         </div>
                     </div>
 

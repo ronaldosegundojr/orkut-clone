@@ -6,6 +6,8 @@ import { AppLayout } from './components/AppLayout';
 // Pages
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
 import Home from './pages/Home/Home';
 import Profile from './pages/Profile/Profile';
 import Scraps from './pages/Scraps/Scraps';
@@ -15,6 +17,7 @@ import Communities from './pages/Communities/Communities';
 import CommunityDetail from './pages/Communities/CommunityDetail';
 import CommunityMembers from './pages/Communities/CommunityMembers';
 import TopicDetail from './pages/Communities/TopicDetail';
+import Testimonials from './pages/Testimonials/Testimonials';
 import Photos from './pages/Photos/Photos';
 import PhotoDetail from './pages/Photos/PhotoDetail';
 import Events from './pages/Events/Events';
@@ -59,6 +62,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+          <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
           <Route path="/" element={<ProtectedRoute><AppLayout><Home /></AppLayout></ProtectedRoute>} />
           <Route path="/profile/:username?" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
           <Route path="/:username/scraps" element={<ProtectedRoute><AppLayout><Scraps /></AppLayout></ProtectedRoute>} />
@@ -75,6 +80,7 @@ function App() {
           <Route path="/communities/:id" element={<ProtectedRoute><AppLayout><CommunityDetail /></AppLayout></ProtectedRoute>} />
           <Route path="/communities/:id/members" element={<ProtectedRoute><AppLayout><CommunityMembers /></AppLayout></ProtectedRoute>} />
           <Route path="/communities/:id/topics/:topicId" element={<ProtectedRoute><AppLayout><TopicDetail /></AppLayout></ProtectedRoute>} />
+          <Route path="/testimonials/user/:username" element={<ProtectedRoute><AppLayout><Testimonials /></AppLayout></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><AppLayout><Events /></AppLayout></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><AppLayout><Messages /></AppLayout></ProtectedRoute>} />
           <Route path="/search" element={<ProtectedRoute><AppLayout><SearchResults /></AppLayout></ProtectedRoute>} />

@@ -94,10 +94,16 @@ export default function UserCard({ user, stats, onAddFriend }) {
                             >
                                 <span style={{ width: '14px', textAlign: 'center', color: '#1155cc' }}>📧</span> mandar mensagem
                             </Link>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}>
+                            <Link
+                                to={`/testimonials/user/${encodeURIComponent(username)}?write=true`}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}
+                            >
                                 <span style={{ width: '14px', textAlign: 'center', color: '#cc0000' }}>⭐</span> criar depoimento
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}>
+                            </Link>
+                            <div
+                                onClick={() => alert('Usuário denunciado. Nossa equipe analisará o perfil em breve.')}
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}
+                            >
                                 <span style={{ width: '14px', textAlign: 'center', color: '#cc0000' }}>⚠️</span> denunciar abuso
                             </div>
                             <div style={{ fontSize: '11px', color: '#4883b1', cursor: 'pointer' }}>mais »</div>
@@ -109,19 +115,19 @@ export default function UserCard({ user, stats, onAddFriend }) {
 
                 {/* Navigation Menu */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <Link to={`/profile/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to={`/profile/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#0070bc' }}>👤</span> perfil
                     </Link>
-                    <Link to={`/${encodeURIComponent(username)}/scraps`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to={`/${encodeURIComponent(username)}/scraps`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#ffcc00' }}>📝</span> recados
                     </Link>
-                    <Link to={`/${encodeURIComponent(username)}/photos`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to={`/${encodeURIComponent(username)}/photos`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#808080' }}>📷</span> fotos
                     </Link>
-                    <Link to={`/${encodeURIComponent(username)}/videos`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to={`/${encodeURIComponent(username)}/videos`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#000' }}>🎞️</span> vídeos
                     </Link>
-                    <Link to={`/testimonials/user/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>
+                    <Link to={`/testimonials/user/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1', textDecoration: 'none' }}>
                         <span style={{ width: '14px', textAlign: 'center', color: '#ff66aa' }}>✍️</span> depoimentos
                     </Link>
                     <Link to={`/profile/${encodeURIComponent(username)}`} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#4883b1' }}>

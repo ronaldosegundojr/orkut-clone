@@ -237,6 +237,15 @@ export default function Profile() {
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
+                                    <div style={{ color: '#ff66aa' }}>depoimentos</div>
+                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px' }}>
+                                        <Link to={`/testimonials/user/${encodeURIComponent(profile.username)}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                            <span style={{ fontSize: '14px' }}>✍️</span>
+                                            {profile.stats?.testimonials || 0}
+                                        </Link>
+                                    </div>
+                                </div>
+                                <div style={{ textAlign: 'center' }}>
                                     <div style={{ color: '#666' }}>fãs</div>
                                     <div style={{ color: '#000', marginTop: '2px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '2px' }}>
                                         <span style={{ fontSize: '14px', color: '#ffcc00' }}>💛</span>
