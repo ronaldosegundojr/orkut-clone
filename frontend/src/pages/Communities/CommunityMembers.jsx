@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../../api/client';
+import UserCard from '../../components/UserCard';
+import { useAuth } from '../../context/AuthContext';
 
 export default function CommunityMembers() {
     const { id } = useParams();
+    const { user } = useAuth();
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [community, setCommunity] = useState(null);
@@ -23,45 +26,46 @@ export default function CommunityMembers() {
         load();
     }, [id]);
 
-    if (loading) return <div className="loading">Carregando membros...</div>;
+    if (loading) return <div className="three-col"><div className="col-center"><div className="loading">Carregando membros...</div></div></div>;
 
     return (
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-            <div style={{ marginBottom: '20px' }}>
-                <Link to={`/communities/${id}`} style={{ color: '#1155cc', fontSize: '12px' }}>← Voltar para {community?.name}</Link>
+        <div className="three-col">
+            <div className="col-left">
+                <UserCard user={user} stats={user?.stats} />
             </div>
-            
-            <div className="card">
-                <div className="card-header" style={{ background: '#e4edf5', color: '#000', fontSize: '12px', fontWeight: 'bold' }}>
-                    Membros da comunidade ({members.length})
+
+            <div className="col-center">
+                <div style={{ marginBottom: '10px' }}>
+                    <Link to={`/communities/${id}`} style={{ color: '#1155cc', fontSize: '12px', textDecoration: 'none' }}>« Voltar para {community?.name}</Link>
                 </div>
-                <div className="card-body">
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '15px' }}>
-                        {members.map(m => (
-                            <div key={m.id} style={{ textAlign: 'center', padding: '10px', border: '1px solid #eee', borderRadius: '8px' }}>
-                                <Link to={`/profile/${m.username}`}>
-                                    <img 
-                                        src={m.avatar} 
-                                        alt={m.username} 
-                                        style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', marginBottom: '8px' }} 
-                                    />
-                                </Link>
-                                <Link to={`/profile/${m.username}`} style={{ color: '#1155cc', fontSize: '12px', fontWeight: 'bold', display: 'block' }}>
-                                    {m.username}
-                                </Link>
-                                {m.role === 'admin' && (
-                                    <span style={{ fontSize: '10px', color: '#cc4488', display: 'block', marginTop: '4px' }}>Administrador</span>
-                                )}
-                                {m.role === 'moderator' && (
-                                    <span style={{ fontSize: '10px', color: '#1155cc', display: 'block', marginTop: '4px' }}>Moderador</span>
-                                )}
-                            </div>
-                        ))}
+
+                <div className="card" style={{ borderRadius: '8px', border: '1px solid #c9d7f1' }}>
+                    <div className="card-header" style={{ background: 'white', color: '#000', fontSize: '12px', fontWeight: 'bold', borderBottom: '1px solid #f0f0f0' }}>
+                        membros ({members.length})
                     </div>
-                    {members.length === 0 && (
-                        <div style={{ textAlign: 'center', padding: '30px', color: '#666' }}>Nenhum membro encontrado.</div>
-                    )}
+                    <div className="card-body" style={{ padding: '15px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '15px' }}>
+                            {members.map(m => (
+                                <div key={m.id} className="friend-card">
+                                    <Link to={`/profile/${encodeURIComponent(m.username)}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <img src={m.avatar} alt={m.username} />
+                                        <div className="name">{m.username}</div>
+                                    </Link>
+                                    {m.role === 'admin' && (
+                                        <span style={{ fontSize: '9px', color: '#cc4488', marginTop: '4px' }}>Dono</span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                        {members.length === 0 && (
+                            <div style={{ textAlign: 'center', padding: '30px', color: '#666', fontSize: '12px' }}>Nenhum membro encontrado.</div>
+                        )}
+                    </div>
                 </div>
+            </div>
+
+            <div className="col-right">
+                {/* Opcional: Sugestões ou outras infos */}
             </div>
         </div>
     );

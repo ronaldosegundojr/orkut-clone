@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link, useParams } from 'react-router-dom';
 import api from '../../api/client';
+import UserCard from '../../components/UserCard';
 
 export default function Friends() {
     const { username } = useParams();
     const { user } = useAuth();
-    const targetQuery = username || user.username;
+    const targetQuery = username || user?.username;
     const [tab, setTab] = useState('friends');
     const [friends, setFriends] = useState([]);
     const [requests, setRequests] = useState([]);
@@ -17,13 +18,13 @@ export default function Friends() {
         setLoading(true);
         try {
             const [fRes, uRes] = await Promise.all([
-                api.get(`/friends/${targetQuery}`),
-                api.get(`/users/${targetQuery}`)
+                api.get(`/friends/${encodeURIComponent(targetQuery)}`),
+                api.get(`/users/${encodeURIComponent(targetQuery)}`)
             ]);
             setFriends(fRes.data);
             setTargetUser(uRes.data);
 
-            if (targetQuery === user.username) {
+            if (user && targetQuery === user.username) {
                 const rRes = await api.get('/friends/requests/pending');
                 setRequests(rRes.data);
             }
@@ -34,7 +35,9 @@ export default function Friends() {
         }
     };
 
-    useEffect(() => { loadData(); }, [targetQuery]);
+    useEffect(() => {
+        if (targetQuery) loadData();
+    }, [targetQuery]);
 
     const handleRequest = async (id, status) => {
         try {
@@ -96,11 +99,11 @@ export default function Friends() {
                             <div>
                                 {requests.map(r => (
                                     <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '15px', padding: '15px 0', borderBottom: '1px dotted #ccc' }}>
-                                        <Link to={`/profile/${r.username}`}>
+                                        <Link to={`/profile/${encodeURIComponent(r.username)}`}>
                                             <img src={r.avatar} alt={r.username} className="avatar avatar-lg" />
                                         </Link>
                                         <div style={{ flex: 1 }}>
-                                            <Link to={`/profile/${r.username}`} style={{ fontWeight: 'bold', fontSize: '14px' }}>{r.username}</Link>
+                                            <Link to={`/profile/${encodeURIComponent(r.username)}`} style={{ fontWeight: 'bold', fontSize: '14px' }}>{r.username}</Link>
                                             <div className="humor-text" style={{ marginTop: '4px' }}>{r.humor}</div>
                                             <div style={{ fontSize: '10px', color: '#999', marginTop: '4px' }}>
                                                 Solicitado em {new Date(r.created_at).toLocaleDateString()}

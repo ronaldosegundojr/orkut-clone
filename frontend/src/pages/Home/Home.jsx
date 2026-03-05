@@ -178,22 +178,33 @@ export default function Home() {
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                     {updates.map(update => (
                                         <div key={`${update.type}-${update.id}`} style={{ display: 'flex', gap: '12px', paddingBottom: '12px', borderBottom: '1px solid #f5f5f5' }}>
-                                            <Link to={`/profile/${encodeURIComponent(update.username)}`}>
+                                            <Link to={`/profile/${encodeURIComponent(update.author_username || update.owner_username)}`}>
                                                 <img
-                                                    src={update.avatar}
+                                                    src={update.author_avatar || update.owner_avatar}
                                                     alt="avatar"
                                                     style={{ width: '40px', height: '40px', borderRadius: '4px', border: '1px solid #ddd' }}
                                                 />
                                             </Link>
                                             <div style={{ flex: 1 }}>
                                                 <div style={{ fontSize: '12px' }}>
-                                                    <Link to={`/profile/${encodeURIComponent(update.username)}`} style={{ fontWeight: 'bold', color: '#1155cc', textDecoration: 'none' }}>
-                                                        {update.username}
+                                                    <Link to={`/profile/${encodeURIComponent(update.author_username || update.owner_username)}`} style={{ fontWeight: 'bold', color: '#1155cc', textDecoration: 'none' }}>
+                                                        {update.author_username || update.owner_username}
                                                     </Link>
-                                                    <span style={{ color: '#666' }}> {update.type === 'scrap' ? 'recebeu um novo recado' : update.type === 'photo' ? 'postou uma nova foto' : 'atualizou o perfil'}</span>
+                                                    <span style={{ color: '#666' }}>
+                                                        {update.type === 'scrap' ? ' recebeu um novo recado' :
+                                                            update.type === 'photo' ? ' postou uma nova foto' :
+                                                                update.type === 'video' ? ' compartilhou um vídeo' :
+                                                                    ' atualizou o perfil'}
+                                                    </span>
                                                 </div>
                                                 {update.type === 'scrap' && update.text && (
                                                     <div style={{ fontSize: '11px', color: '#444', marginTop: '2px', fontStyle: 'italic' }}>"{update.text}"</div>
+                                                )}
+                                                {update.type === 'photo' && update.caption && (
+                                                    <div style={{ fontSize: '11px', color: '#444', marginTop: '2px' }}>{update.caption}</div>
+                                                )}
+                                                {update.type === 'video' && update.title && (
+                                                    <div style={{ fontSize: '11px', color: '#444', marginTop: '2px' }}>{update.title}</div>
                                                 )}
                                                 <div style={{ fontSize: '10px', color: '#999', marginTop: '4px' }}>
                                                     {new Date(update.created_at).toLocaleString()}
