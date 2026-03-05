@@ -159,6 +159,8 @@ async function initDB() {
       body TEXT NOT NULL,
       type TEXT DEFAULT 'text',
       read INTEGER DEFAULT 0,
+      deleted_by_sender INTEGER DEFAULT 0,
+      deleted_by_receiver INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now'))
     );
     CREATE TABLE IF NOT EXISTS testimonials (
@@ -383,68 +385,68 @@ async function seedData() {
     [p2id, demo.id, 'https://picsum.photos/seed/tukro2/400/300', 'Viagem incrível!', 'Viagens']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [p3id, demo.id, 'https://picsum.photos/seed/tukro3/400/300', 'Com os amigos!', 'Amigos']);
-  
+
   // Fotos da Ana
   const ana1 = uuidv4();
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [ana1, ana.id, 'https://picsum.photos/seed/ana1/400/300', 'Uma tarde especial 🌸', 'Geral']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), ana.id, 'https://picsum.photos/seed/ana2/400/300', 'Pôr do sol no Rio 🌅', 'Viagens']);
-  
+
   // Fotos do Carlos
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), carlos.id, 'https://picsum.photos/seed/carlos1/400/300', 'Setup de desenvolvedor 💻', 'Geral']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), carlos.id, 'https://picsum.photos/seed/carlos2/400/300', 'Hackathon time! 🚀', 'Trabalho']);
-  
+
   // Fotos da Juliana
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), juliana.id, 'https://picsum.photos/seed/juliana1/400/300', 'Dançando! 💃', 'Geral']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), juliana.id, 'https://picsum.photos/seed/juliana2/400/300', 'Receita nova! 🍕', 'Culinária']);
-  
+
   // Fotos do Bruno
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), bruno.id, 'https://picsum.photos/seed/bruno1/400/300', 'Gaming mode ON 🎮', 'Games']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), bruno.id, 'https://picsum.photos/seed/bruno2/400/300', 'Anime marathon! 🏯', 'Animes']);
-  
+
   // Fotos da Mariana
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), mariana.id, 'https://picsum.photos/seed/mariana1/400/300', 'Studying medicine 🩺', 'Estudos']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), mariana.id, 'https://picsum.photos/seed/mariana2/400/300', 'Piano time 🎹', 'Música']);
-  
+
   // Fotos do Rafael
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), rafael.id, 'https://picsum.photos/seed/rafael1/400/300', 'Ondas perfeitas! 🌊', 'Surf']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), rafael.id, 'https://picsum.photos/seed/rafael2/400/300', 'Violão na praia 🎸', 'Música']);
-  
+
   // Fotos da Camila
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), camila.id, 'https://picsum.photos/seed/camila1/400/300', 'Cozinhando! 👩‍🍳', 'Culinária']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), camila.id, 'https://picsum.photos/seed/camila2/400/300', 'Prato do dia 🍝', 'Culinária']);
-  
+
   // Fotos do Pedro
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), pedro.id, 'https://picsum.photos/seed/pedro1/400/300', 'Jogo no Maracanã! ⚽', 'Futebol']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), pedro.id, 'https://picsum.photos/seed/pedro2/400/300', 'Com a galera! 🏆', 'Geral']);
-  
+
   // Fotos da Luisa
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), luisa.id, 'https://picsum.photos/seed/luisa1/400/300', 'Minha arte! 🎨', 'Artesanato']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), luisa.id, 'https://picsum.photos/seed/luisa2/400/300', 'Pintando com as mãos! 🖌️', 'Arte']);
-  
+
   // Fotos do Thiago
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), thiago.id, 'https://picsum.photos/seed/thiago1/400/300', 'Trilha na montanha! 🥾', 'Aventura']);
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), thiago.id, 'https://picsum.photos/seed/thiago2/400/300', 'Ciclovia! 🚴', 'Esportes']);
-  
+
   // Fotos da Bianca
   await db.runAsync('INSERT INTO photos (id, owner_id, url, caption, album) VALUES (?, ?, ?, ?, ?)',
     [uuidv4(), bianca.id, 'https://picsum.photos/seed/bianca1/400/300', 'Meus pets ❤️', 'Pets']);

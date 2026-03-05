@@ -26,7 +26,7 @@ export default function Testimonials({ profileId, testimonials: initialTestimoni
     return (
         <div className="card" style={{ marginBottom: '12px', borderRadius: 0, borderTopRightRadius: '16px', border: '1px solid #c9d7f1' }}>
             <div className="card-body" style={{ padding: '0' }}>
-                <div style={{ padding: '10px 15px', background: '#e4edf5', fontSize: '11px', fontWeight: 'bold', color: '#333' }}>
+                <div className="profile-section-header" style={{ marginTop: 0 }}>
                     ✍️ DEPOIMENTOS ({testimonials.length})
                 </div>
                 <div style={{ padding: '15px' }}>
@@ -58,7 +58,7 @@ export default function Testimonials({ profileId, testimonials: initialTestimoni
                             <div key={t.id} style={{ padding: '10px', borderBottom: '1px solid #eee', marginBottom: '8px' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
                                     <img src={t.author_avatar} alt={t.author_name} style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
-                            <Link to={`/profile/${t.author_username || t.author_id}`} style={{ fontWeight: 'bold', fontSize: '12px', color: '#1155cc' }}>{t.author_name}</Link>
+                                    <Link to={`/profile/${encodeURIComponent(t.author_username || t.author_id)}`} style={{ fontWeight: 'bold', fontSize: '12px', color: '#1155cc' }}>{t.author_name}</Link>
                                     <span style={{ fontSize: '10px', color: '#999' }}>• {new Date(t.created_at).toLocaleDateString('pt-BR')}</span>
                                 </div>
                                 <p style={{ fontSize: '12px', color: '#333', margin: 0, lineHeight: '1.4' }}>{t.text}</p>

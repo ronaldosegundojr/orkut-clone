@@ -195,8 +195,8 @@ function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
     const [showGifPicker, setShowGifPicker] = useState(false);
     const [activeEmojiCategory, setActiveEmojiCategory] = useState('😀');
     const [activeGifCategory, setActiveGifCategory] = useState('Reactions');
-    const { user: currentUser } = useAuth();
     const messagesEndRef = useRef(null);
+    const audioRef = useRef(new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3'));
     const emojiPickerRef = useRef(null);
     const gifPickerRef = useRef(null);
 
@@ -218,6 +218,12 @@ function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
         const fetchMessages = async () => {
             try {
                 const res = await api.get(`/messages/with/${friend.id}`);
+                if (res.data.length > messages.length) {
+                    const lastMsg = res.data[res.data.length - 1];
+                    if (lastMsg.sender_id !== currentUser.id) {
+                        audioRef.current.play().catch(e => console.log('Audio error', e));
+                    }
+                }
                 setMessages(res.data);
             } catch (e) { console.error(e); }
         };
@@ -301,7 +307,8 @@ function ChatWindow({ friend, onClose, onExpand, mode, onChangeMode }) {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 fontSize: '12px',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                borderRadius: '8px 8px 0 0'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <img src={friend.avatar} alt={friend.username} style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
@@ -563,7 +570,7 @@ export default function ChatOnline() {
                 borderRadius: '8px',
                 boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
                 border: '1px solid #ddd',
-                overflow: 'hidden'
+                overflow: 'visible'
             }}>
                 <div
                     style={{
@@ -575,7 +582,8 @@ export default function ChatOnline() {
                         alignItems: 'center',
                         fontWeight: 'bold',
                         fontSize: '13px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        borderRadius: '8px 8px 0 0'
                     }}
                     onClick={() => setIsMainOpen(!isMainOpen)}
                 >

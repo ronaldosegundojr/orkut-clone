@@ -46,31 +46,41 @@ router.get('/:idOrUsername', authMiddleware, async (req, res) => {
             if (!recent) await db.runAsync('INSERT INTO profile_views (id, profile_id, viewer_id) VALUES (?, ?, ?)', [uuidv4(), profileId, req.user.id]);
         }
 
-        const [viewR, scrapR, photoR, videoR, fanR, friendR, votesR] = await Promise.all([
+        const [viewR, scrapR, photoR, videoR, fanR, friendR, votesR, communityR] = await Promise.all([
             db.getAsync('SELECT COUNT(*) as c FROM profile_views WHERE profile_id = ?', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM scraps WHERE target_id = ?', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM photos WHERE owner_id = ?', [profileId]),
             db.getAsync('SELECT COUNT(*) as c FROM videos WHERE owner_id = ?', [profileId]),
-            db.getAsync('SELECT COUNT(*) as c FROM fans WHERE user_id = ?', [profileId]),
-            db.getAsync('SELECT COUNT(*) as c FROM friends WHERE (user_id = ? OR friend_id = ?) AND status = "accepted"', [profileId, profileId]),
-            db.allAsync('SELECT type, COUNT(*) as c FROM user_votes WHERE target_id = ? GROUP BY type', [profileId])
+            db.getAsync('SELECT COUNT(*) as c FROM user_votes WHERE target_id = ? AND type = "fan"', [profileId]), // Changed fan count logic
+            db.getAsync('SELECT COUNT(*) as c FROM friends WHERE user_id = ? AND status = "accepted"', [profileId]),
+            db.allAsync('SELECT type, COUNT(*) as c FROM user_votes WHERE target_id = ? GROUP BY type', [profileId]),
+            db.getAsync('SELECT COUNT(*) as c FROM community_members WHERE user_id = ?', [profileId]) // Added community count
         ]);
 
         const votes = { trusty: 0, cool: 0, sexy: 0 };
         votesR.forEach(r => { if (votes[r.type] !== undefined) votes[r.type] = r.c; });
 
+        const { password_hash, ...safeUser } = user;
+        try { safeUser.details = JSON.parse(safeUser.details || '{}'); } catch (e) { safeUser.details = {}; }
+
         const [isFan, friendship, visitors] = await Promise.all([
-            db.getAsync('SELECT id FROM fans WHERE user_id = ? AND fan_id = ?', [profileId, req.user.id]),
+            db.getAsync('SELECT id FROM user_votes WHERE target_id = ? AND voter_id = ? AND type = "fan"', [profileId, req.user.id]),
             db.getAsync('SELECT * FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', [req.user.id, profileId, profileId, req.user.id]),
             db.allAsync('SELECT DISTINCT u.id, u.username, u.avatar, pv.viewed_at FROM profile_views pv JOIN users u ON u.id = pv.viewer_id WHERE pv.profile_id = ? ORDER BY pv.viewed_at DESC LIMIT 10', [profileId]),
         ]);
 
-        const { password_hash, ...safeUser } = user;
-        try { safeUser.details = JSON.parse(safeUser.details || '{}'); } catch (e) { safeUser.details = {}; }
-
         res.json({
             ...safeUser,
-            stats: { views: viewR.c, scraps: scrapR.c, photos: photoR.c, videos: videoR.c, fans: fanR.c, friends: friendR.c, ...votes },
+            stats: {
+                views: viewR.c,
+                scraps: scrapR.c,
+                photos: photoR.c,
+                videos: videoR.c,
+                fans: fanR.c,
+                friends: friendR.c,
+                communities: communityR.c,
+                ...votes
+            },
             isFan: !!isFan,
             friendship: friendship || null,
             visitors

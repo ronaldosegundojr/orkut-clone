@@ -99,6 +99,17 @@ export default function SearchResults() {
                 </div>
 
                 <div className="filter-group" style={{ marginBottom: '15px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '5px' }}>Estado</label>
+                    <input
+                        type="text"
+                        value={stateFilter}
+                        onChange={e => setStateFilter(e.target.value)}
+                        placeholder="Filtrar por estado..."
+                        style={{ width: '100%', fontSize: '11px', padding: '4px', border: '1px solid #7a93b7' }}
+                    />
+                </div>
+
+                <div className="filter-group" style={{ marginBottom: '15px' }}>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 'bold', marginBottom: '5px' }}>País</label>
                     <input
                         type="text"

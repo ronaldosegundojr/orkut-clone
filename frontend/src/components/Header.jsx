@@ -50,13 +50,13 @@ export default function Header() {
                 </div>
 
                 {/* Navigation Area (Blue) */}
-                <div style={{ flex: 1, background: '#8da5c9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px', borderTopLeftRadius: '4px', borderTopRightRadius: '4px' }}>
+                <div style={{ flex: 1, background: '#8da5c9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 15px', borderTopLeftRadius: '8px', borderTopRightRadius: '8px' }}>
                     <nav style={{ display: 'flex', gap: '15px', fontSize: '11px', fontWeight: 'bold' }}>
                         <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>Início</Link>
-                        <Link to={`/profile/${user.username}`} style={{ color: 'white', textDecoration: 'none' }}>Perfil</Link>
-                        <Link to="/scraps" style={{ color: 'white', textDecoration: 'none' }}>Página de recados</Link>
-                        <Link to="/friends" style={{ color: 'white', textDecoration: 'none' }}>Amigos</Link>
-                        <Link to="/communities" style={{ color: 'white', textDecoration: 'none' }}>Comunidades</Link>
+                        <Link to={`/profile/${encodeURIComponent(user.username)}`} style={{ color: 'white', textDecoration: 'none' }}>Perfil</Link>
+                        <Link to={`/${encodeURIComponent(user.username)}/scraps`} style={{ color: 'white', textDecoration: 'none' }}>Página de recados</Link>
+                        <Link to={`/${encodeURIComponent(user.username)}/friends`} style={{ color: 'white', textDecoration: 'none' }}>Amigos</Link>
+                        <Link to={`/${encodeURIComponent(user.username)}/communities`} style={{ color: 'white', textDecoration: 'none' }}>Comunidades</Link>
                     </nav>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
@@ -64,7 +64,7 @@ export default function Header() {
 
                         {/* Search */}
                         <div style={{ position: 'relative' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #7a93b7', padding: '2px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', background: 'white', border: '1px solid #7a93b7', padding: '2px', borderRadius: '4px' }}>
                                 <input
                                     type="text"
                                     placeholder="pesquisa do tukro"
@@ -75,10 +75,10 @@ export default function Header() {
                                     style={{ border: 'none', outline: 'none', fontSize: '11px', padding: '2px 4px', width: '130px', margin: 0 }}
                                 />
                                 <div
-                                    style={{ background: '#d4dded', padding: '2px 6px', cursor: 'pointer', border: '1px solid #a3b2cc' }}
+                                    style={{ background: '#d4dded', padding: '2px 8px', cursor: 'pointer', border: '1px solid #a3b2cc', borderTopRightRadius: '3px', borderBottomRightRadius: '3px' }}
                                     onClick={performFullSearch}
                                 >
-                                    <Search size={10} color="#000" />
+                                    <Search size={11} color="#000" />
                                 </div>
                             </div>
 

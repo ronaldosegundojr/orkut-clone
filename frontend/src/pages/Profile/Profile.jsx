@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
 import UserCard from '../../components/UserCard';
 import Testimonials from '../../components/Testimonials';
+import SidebarList from '../../components/SidebarList';
 
 export default function Profile() {
     const { username } = useParams();
     const navigate = useNavigate();
     const { user: currentUser, updateUser } = useAuth();
+    const location = useLocation();
 
     if (!currentUser) {
         return <div className="loading">Carregando...</div>;
@@ -38,6 +40,7 @@ export default function Profile() {
             setProfile(userData);
             setProfileId(userData.id);
             setNewHumor(userData.humor);
+            setNewName(userData.username);
 
             const [friendsRes, commRes, testimonialRes] = await Promise.all([
                 api.get(`/friends/${userData.id}`),
@@ -105,16 +108,10 @@ export default function Profile() {
     const handleAction = async (action, type) => {
         try {
             if (action === 'addFriend') {
-                await api.post('/friends/request', { friend_id: profileId });
-                loadProfile();
-            } else if (action === 'fan') {
-                await api.post('/fans', { user_id: profileId });
-                loadProfile();
-            } else if (action === 'unfan') {
-                await api.delete(`/fans/${profileId}`);
+                await api.post('/friends/request', { friend_id: profile.id });
                 loadProfile();
             } else if (action === 'vote') {
-                await api.post(`/users/${profileId}/vote`, { type });
+                await api.post(`/users/${profile.id}/vote`, { type });
                 loadProfile();
             }
         } catch (e) {
@@ -125,15 +122,19 @@ export default function Profile() {
     const isFriend = profile?.friendship || friends.some(f => f.username === currentUser.username);
 
     if (loading) return <div className="loading">Carregando Tukro...</div>;
-    if (!profile) return <div className="empty-state">Carregando perfil...</div>;
+    if (!profile) return <div className="empty-state">Perfil não encontrado.</div>;
 
     return (
         <div className="three-col">
             <div className="col-left">
-                <UserCard user={profile} stats={profile.stats} />
+                <UserCard
+                    user={profile}
+                    stats={profile.stats}
+                    onAddFriend={() => handleAction('addFriend')}
+                />
 
                 {!isMe && (
-                    <div className="card" style={{ marginTop: '12px' }}>
+                    <div className="card" style={{ marginTop: '12px', borderRadius: '8px' }}>
                         <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             {!profile.friendship && (
                                 <button className="btn btn-pink btn-full" onClick={() => handleAction('addFriend')}>Adicionar Amigo</button>
@@ -141,23 +142,19 @@ export default function Profile() {
                             {profile.friendship?.status === 'pending' && (
                                 <button className="btn btn-gray btn-full" disabled>Solicitação enviada</button>
                             )}
-                            <Link to={`/scraps?to=${profile.username}`} className="btn btn-outline btn-full">Deixar recado</Link>
+                            <Link to={`/${profile.username}/scraps`} className="btn btn-outline btn-full">Deixar recado</Link>
                             <Link to={`/messages?userId=${profile.username}`} className="btn btn-outline btn-full">Enviar mensagem</Link>
-
-                            <button className={`btn ${profile.isFan ? 'btn-gray' : 'btn-outline'} btn-full`} onClick={() => handleAction(profile.isFan ? 'unfan' : 'fan')}>
-                                {profile.isFan ? 'Deixar de ser Fã' : 'Virar Fã (♥)'}
-                            </button>
                         </div>
                     </div>
                 )}
             </div>
 
             <div className="col-center">
-                <div className="card" style={{ marginBottom: '12px', borderRadius: 0, borderTopRightRadius: '16px', border: '1px solid #c9d7f1' }}>
+                <div className="card" style={{ marginBottom: '12px', borderTopRightRadius: '20px', borderBottomRightRadius: '8px', borderTopLeftRadius: '8px', borderBottomLeftRadius: '8px', border: '1px solid #c9d7f1' }}>
                     <div className="card-body" style={{ padding: '0' }}>
 
                         {/* Header Box (White) */}
-                        <div style={{ padding: '20px 20px 10px 20px', background: 'white', borderTopRightRadius: '16px' }}>
+                        <div style={{ padding: '20px 20px 10px 20px', background: 'white', borderTopRightRadius: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
                                 {nameEdit && isMe ? (
                                     <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
@@ -174,7 +171,7 @@ export default function Profile() {
                                     </div>
                                 ) : (
                                     <h1
-                                        style={{ fontSize: '20px', color: '#000', fontWeight: 'normal', fontFamily: 'Arial, sans-serif', cursor: isMe ? 'pointer' : 'default' }}
+                                        style={{ fontSize: '20px', color: '#4883b1', fontWeight: 'bold', fontFamily: 'Arial, sans-serif', cursor: isMe ? 'pointer' : 'default' }}
                                         onClick={() => { if (isMe) { setNewName(profile.username); setNameEdit(true); } }}
                                         title={isMe ? 'Clique para editar' : ''}
                                     >
@@ -183,7 +180,6 @@ export default function Profile() {
                                 )}
                             </div>
 
-                            {/* Humor text line (bordered box) - click to edit */}
                             <div
                                 style={{
                                     border: '1px solid #e5e5e5',
@@ -194,7 +190,8 @@ export default function Profile() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     minHeight: '30px',
-                                    cursor: isMe ? 'text' : 'default'
+                                    cursor: isMe ? 'text' : 'default',
+                                    borderRadius: '4px'
                                 }}
                                 onClick={() => { if (isMe && !humorEdit) { setNewHumor(profile.humor || ''); setHumorEdit(true); } }}
                             >
@@ -211,12 +208,11 @@ export default function Profile() {
                                 )}
                             </div>
 
-                            {/* Stats Horizontal */}
                             <div style={{ display: 'flex', gap: '15px', color: '#666', fontSize: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
                                 <div style={{ textAlign: 'center' }}>
                                     <div>recados</div>
-                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                        <Link to={`/scraps?to=${profile.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px' }}>
+                                        <Link to={`/${encodeURIComponent(profile.username)}/scraps`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
                                             <span style={{ fontSize: '14px' }}>📝</span>
                                             {profile.stats?.scraps || 0}
                                         </Link>
@@ -224,8 +220,8 @@ export default function Profile() {
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
                                     <div>fotos</div>
-                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                        <Link to={`/photos/user/${profile.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px' }}>
+                                        <Link to={`/${encodeURIComponent(profile.username)}/photos`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
                                             <span style={{ fontSize: '14px' }}>📷</span>
                                             {profile.stats?.photos || 0}
                                         </Link>
@@ -233,20 +229,18 @@ export default function Profile() {
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
                                     <div>vídeos</div>
-                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                        <Link to={`/videos?user=${profile.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                                    <div style={{ color: '#000', marginTop: '2px', fontSize: '11px' }}>
+                                        <Link to={`/${encodeURIComponent(profile.username)}/videos`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
                                             <span style={{ fontSize: '14px' }}>🎥</span>
                                             {profile.stats?.videos || 0}
                                         </Link>
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
-                                    <div>fãs</div>
+                                    <div style={{ color: '#666' }}>fãs</div>
                                     <div style={{ color: '#000', marginTop: '2px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                        <Link to={`/fans/${profile.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                                            <span style={{ fontSize: '14px', color: '#e5ad00' }}>⭐</span>
-                                            {profile.stats?.fans || 0}
-                                        </Link>
+                                        <span style={{ fontSize: '14px', color: '#ffcc00' }}>💛</span>
+                                        {profile.stats?.fans || 0}
                                     </div>
                                 </div>
                                 <div style={{ textAlign: 'center' }}>
@@ -274,31 +268,28 @@ export default function Profile() {
                                     </div>
                                 </div>
                             </div>
-
-
                         </div>
 
                         <div style={{ borderTop: '2px solid #e4edf5' }}></div>
 
-                        {/* Bio / Quem Sou Eu Box (Light Blue) */}
-                        <div style={{ padding: '15px 20px', background: '#e4edf5', display: 'flex', gap: '10px' }}>
-                            <div style={{ width: '110px', color: '#666', fontSize: '11px', textAlign: 'right', fontWeight: 'bold' }}>
-                                quem sou eu:
-                            </div>
-                            <div style={{ flex: 1, color: '#333', fontSize: '12px', whiteSpace: 'pre-wrap', fontFamily: 'Arial, sans-serif' }}>
-                                {editDetails ? (
-                                    <textarea
-                                        value={detailsForm.bio || ''}
-                                        onChange={e => setDetailsForm({ ...detailsForm, bio: e.target.value })}
-                                        style={{ width: '100%', minHeight: '80px', padding: '5px', fontSize: '12px', border: '1px solid #c9d7f1' }}
-                                    />
-                                ) : (
-                                    profile.bio || 'Este usuário ainda não escreveu nada sobre si.'
-                                )}
+                        {/* Bio Box (Blue #ddeeff) */}
+                        <div className="profile-bio-box" style={{ background: '#ddeeff', padding: '15px 20px', borderRadius: 0, borderBottom: '1px solid #c9d7f1' }}>
+                            <div style={{ display: 'flex' }}>
+                                <div style={{ width: '130px', color: '#1155cc', fontSize: '11px', textAlign: 'right', paddingRight: '10px' }}>quem sou eu:</div>
+                                <div style={{ flex: 1, fontSize: '12px', color: '#000', whiteSpace: 'pre-wrap' }}>
+                                    {editDetails ? (
+                                        <textarea
+                                            value={detailsForm.bio || ''}
+                                            onChange={e => setDetailsForm({ ...detailsForm, bio: e.target.value })}
+                                            style={{ width: '100%', minHeight: '100px', fontSize: '11px' }}
+                                        />
+                                    ) : (
+                                        profile.bio || 'Sem bio definida...'
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* Detailed Information Rows */}
                         <div style={{ padding: '10px 0', background: 'white' }}>
                             {isMe && (
                                 <div style={{ padding: '0 20px 10px', textAlign: 'right' }}>
@@ -340,12 +331,12 @@ export default function Profile() {
                                 }
                             ].map((section, idx) => (
                                 <div key={idx} style={{ marginBottom: '15px' }}>
-                                    <div style={{ padding: '4px 20px', background: '#d4dded', color: '#333', fontSize: '11px', fontWeight: 'bold' }}>
+                                    <div className="profile-section-header">
                                         {section.label}
                                     </div>
                                     {section.fields.map(f => (
                                         <div key={f.key} style={{ display: 'flex', padding: '4px 20px', fontSize: '11px' }}>
-                                            <div style={{ width: '110px', color: '#666', textAlign: 'right', paddingRight: '10px' }}>{f.label}</div>
+                                            <div style={{ width: '130px', color: '#666', textAlign: 'right', paddingRight: '10px' }}>{f.label}</div>
                                             <div style={{ flex: 1, color: '#333' }}>
                                                 {editDetails ? (
                                                     <input
@@ -366,7 +357,6 @@ export default function Profile() {
                     </div>
                 </div>
 
-                {/* Depoimentos Section - Below the details */}
                 <Testimonials
                     profileId={profileId}
                     testimonials={testimonials}
@@ -375,46 +365,22 @@ export default function Profile() {
             </div>
 
             <div className="col-right">
-                {/* Friends */}
-                <div className="card" style={{ marginBottom: '12px', borderRadius: 0, border: '1px solid #c9d7f1', boxShadow: 'none' }}>
-                    <div className="card-header" style={{ background: '#e4edf5', color: '#000', padding: '5px 8px', fontSize: '11px', fontWeight: 'bold', borderBottom: 'none' }}>
-                        amigos ({profile.stats?.friends || 0})
-                    </div>
-                    <div className="card-body" style={{ padding: '8px' }}>
-                        <div className="friends-grid-sidebar">
-                            {friends.map(f => (
-                                <Link key={f.friendship_id || f.id} to={`/profile/${f.username}`} className="friend-item-sidebar" title={f.username}>
-                                    <img src={f.avatar} alt={f.username} />
-                                    <span>{f.username.split(' ')[0]}</span>
-                                </Link>
-                            ))}
-                        </div>
-                        <div style={{ marginTop: '12px', textAlign: 'right' }}>
-                            <Link to="/friends" style={{ fontSize: '11px', color: '#1155cc' }}>ver todos</Link>
-                        </div>
-                    </div>
-                </div>
+                <SidebarList
+                    title="amigos"
+                    items={friends}
+                    count={profile.stats?.friends || 0}
+                    viewAllLink={`/${encodeURIComponent(profile.username)}/friends`}
+                    type="friends"
+                />
 
-                {/* Communities */}
-                <div className="card" style={{ borderRadius: 0, border: '1px solid #c9d7f1', boxShadow: 'none' }}>
-                    <div className="card-header" style={{ background: '#e4edf5', color: '#000', padding: '5px 8px', fontSize: '11px', fontWeight: 'bold', borderBottom: 'none' }}>
-                        comunidades ({profile.stats?.communities || communities.length})
-                    </div>
-                    <div className="card-body" style={{ padding: '8px' }}>
-                        <div className="friends-grid-sidebar">
-                            {communities.map(c => (
-                                <Link key={c.id} to={`/communities/${c.id}`} className="friend-item-sidebar" title={c.name}>
-                                    <img src={c.image} alt={c.name} />
-                                    <span>{c.name.split(' ')[0]}</span>
-                                </Link>
-                            ))}
-                        </div>
-                        <div style={{ marginTop: '12px', textAlign: 'right' }}>
-                            <Link to="/communities" style={{ fontSize: '11px', color: '#1155cc' }}>ver todas</Link>
-                        </div>
-                    </div>
-                </div>
+                <SidebarList
+                    title="comunidades"
+                    items={communities}
+                    count={profile.stats?.communities || communities.length}
+                    viewAllLink={`/${encodeURIComponent(profile.username)}/communities`}
+                    type="communities"
+                />
             </div>
-        </div >
+        </div>
     );
 }

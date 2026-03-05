@@ -59,6 +59,11 @@ function App() {
           <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
           <Route path="/" element={<ProtectedRoute><AppLayout><Home /></AppLayout></ProtectedRoute>} />
           <Route path="/profile/:username?" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
+          <Route path="/:username/scraps" element={<ProtectedRoute><AppLayout><Scraps /></AppLayout></ProtectedRoute>} />
+          <Route path="/:username/friends" element={<ProtectedRoute><AppLayout><Friends /></AppLayout></ProtectedRoute>} />
+          <Route path="/:username/photos" element={<ProtectedRoute><AppLayout><Photos /></AppLayout></ProtectedRoute>} />
+          <Route path="/:username/videos" element={<ProtectedRoute><AppLayout><Videos /></AppLayout></ProtectedRoute>} />
+          <Route path="/:username/communities" element={<ProtectedRoute><AppLayout><Communities /></AppLayout></ProtectedRoute>} />
           <Route path="/scraps" element={<ProtectedRoute><AppLayout><Scraps /></AppLayout></ProtectedRoute>} />
           <Route path="/friends" element={<ProtectedRoute><AppLayout><Friends /></AppLayout></ProtectedRoute>} />
           <Route path="/fans/:userId" element={<ProtectedRoute><AppLayout><Fans /></AppLayout></ProtectedRoute>} />
@@ -66,9 +71,7 @@ function App() {
           <Route path="/communities/:id" element={<ProtectedRoute><AppLayout><CommunityDetail /></AppLayout></ProtectedRoute>} />
           <Route path="/communities/:id/members" element={<ProtectedRoute><AppLayout><CommunityMembers /></AppLayout></ProtectedRoute>} />
           <Route path="/communities/:id/topics/:topicId" element={<ProtectedRoute><AppLayout><TopicDetail /></AppLayout></ProtectedRoute>} />
-          <Route path="/photos/user/:username?" element={<ProtectedRoute><AppLayout><Photos /></AppLayout></ProtectedRoute>} />
           <Route path="/events" element={<ProtectedRoute><AppLayout><Events /></AppLayout></ProtectedRoute>} />
-          <Route path="/videos" element={<ProtectedRoute><AppLayout><Videos /></AppLayout></ProtectedRoute>} />
           <Route path="/messages" element={<ProtectedRoute><AppLayout><Messages /></AppLayout></ProtectedRoute>} />
           <Route path="/search" element={<ProtectedRoute><AppLayout><SearchResults /></AppLayout></ProtectedRoute>} />
         </Routes>

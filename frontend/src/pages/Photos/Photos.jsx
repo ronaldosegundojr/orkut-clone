@@ -6,7 +6,7 @@ import api from '../../api/client';
 export default function Photos() {
     const { username } = useParams();
     const { user } = useAuth();
-    const targetParam = username || user.username;
+    const targetQuery = username || user.username;
 
     const [photos, setPhotos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -17,8 +17,8 @@ export default function Photos() {
     const load = async () => {
         try {
             const [photoRes, userRes] = await Promise.all([
-                api.get(`/photos/user/${targetParam}`),
-                api.get(`/users/${targetParam}`)
+                api.get(`/photos/user/${targetQuery}`),
+                api.get(`/users/${targetQuery}`)
             ]);
             setPhotos(photoRes.data);
             setTargetUser(userRes.data);
@@ -26,7 +26,7 @@ export default function Photos() {
         finally { setLoading(false); }
     };
 
-    useEffect(() => { load(); }, [targetParam]);
+    useEffect(() => { load(); }, [targetQuery]);
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -48,7 +48,7 @@ export default function Photos() {
 
     if (loading) return <div className="loading">Carregando fotos...</div>;
 
-    const isMe = targetId === user.id;
+    const isMe = targetUser?.id === user.id;
 
     return (
         <div className="card">
@@ -84,7 +84,7 @@ export default function Photos() {
                                 <div style={{ fontSize: '11px', color: '#666', marginBottom: '6px' }}>Álbum: {p.album}</div>
                                 <div style={{ fontSize: '12px', marginBottom: '8px' }}>{p.caption || 'Sem legenda'}</div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ fontSize: '10px', color: '#999' }}>{p.comment_count} compentários</span>
+                                    <span style={{ fontSize: '10px', color: '#999' }}>{p.comment_count} comentários</span>
                                     {isMe && <button style={{ fontSize: '10px', background: 'none', border: 'none', color: '#cc0044', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => handleDelete(p.id)}>Excluir</button>}
                                 </div>
                             </div>

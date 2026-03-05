@@ -37,13 +37,13 @@ router.get('/user/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
     const { userIdOrUsername } = req.params;
     let userId = userIdOrUsername;
-    
-    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
-      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
-      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-      userId = user.id;
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userIdOrUsername);
+    if (!isUUID) {
+      const u = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = u.id;
     }
-    
+
     const communities = await db.allAsync(`
       SELECT c.*, u.username as owner_name,
         (SELECT COUNT(*) FROM community_members cm2 WHERE cm2.community_id = c.id) as member_count

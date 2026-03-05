@@ -1,24 +1,32 @@
 import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Link } from 'react-router-dom';
 import api from '../../api/client';
 
 export default function Videos() {
+    const { username } = useParams();
     const { user } = useAuth();
+    const targetQuery = username || user.username;
+
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [targetUser, setTargetUser] = useState(null);
     const [showAdd, setShowAdd] = useState(false);
     const [newVideo, setNewVideo] = useState({ url: '', title: '' });
 
     const load = async () => {
         try {
-            const { data } = await api.get(`/videos/user/${user.username}`);
-            setVideos(data);
+            const [videoRes, userRes] = await Promise.all([
+                api.get(`/videos/user/${targetQuery}`),
+                api.get(`/users/${targetQuery}`)
+            ]);
+            setVideos(videoRes.data);
+            setTargetUser(userRes.data);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     };
 
-    useEffect(() => { load(); }, []);
+    useEffect(() => { load(); }, [targetQuery]);
 
     const handleAdd = async (e) => {
         e.preventDefault();
@@ -30,20 +38,24 @@ export default function Videos() {
         } catch (e) { alert('Erro ao adicionar vídeo'); }
     };
 
+    const isMe = targetUser?.id === user.id;
+
     if (loading) return <div className="loading">Carregando vídeos...</div>;
 
     return (
         <div className="card">
             <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>Meus Vídeos ({videos.length})</span>
-                <button className="btn btn-outline btn-sm" style={{ background: 'white', color: 'var(--pink)', border: 'none' }} onClick={() => setShowAdd(!showAdd)}>
-                    + Adicionar Vídeo
-                </button>
+                <span>{isMe ? 'Meus Vídeos' : `Vídeos de ${targetUser?.username}`} ({videos.length})</span>
+                {isMe && (
+                    <button className="btn btn-outline btn-sm" style={{ background: 'white', color: 'var(--pink)', border: 'none' }} onClick={() => setShowAdd(!showAdd)}>
+                        + Adicionar Vídeo
+                    </button>
+                )}
             </div>
 
             <div className="card-body">
 
-                {showAdd && (
+                {showAdd && isMe && (
                     <form style={{ marginBottom: '20px', padding: '15px', background: 'var(--gray-light)', borderRadius: '8px' }} onSubmit={handleAdd}>
                         <h4 style={{ marginBottom: '10px' }}>Adicionar Vídeo (YouTube, Vimeo, etc)</h4>
                         <input type="url" placeholder="URL do vídeo (ex: https://youtube.com/watch...)" value={newVideo.url} onChange={e => setNewVideo({ ...newVideo, url: e.target.value })} style={{ marginBottom: '10px' }} required />
@@ -53,9 +65,8 @@ export default function Videos() {
                     </form>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '15px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
                     {videos.map(v => {
-                        // Basic youtube thumbnail extractor
                         let thumbUrl = 'https://via.placeholder.com/300x169?text=Video';
                         if (v.url.includes('youtube.com/watch?v=')) {
                             const id = v.url.split('v=')[1].split('&')[0];
@@ -80,7 +91,6 @@ export default function Videos() {
                     })}
                 </div>
                 {videos.length === 0 && <div className="empty-state">Nenhum vídeo adicionado.</div>}
-
             </div>
         </div>
     );

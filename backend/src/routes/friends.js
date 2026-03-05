@@ -21,11 +21,11 @@ router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
   try {
     const { userIdOrUsername } = req.params;
     let userId = userIdOrUsername;
-
-    if (!userIdOrUsername.includes('-') || userIdOrUsername.match(/^[a-zA-Z]/)) {
-      const user = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
-      if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
-      userId = user.id;
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userIdOrUsername);
+    if (!isUUID) {
+      const u = await db.getAsync('SELECT id FROM users WHERE username = ?', [userIdOrUsername]);
+      if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = u.id;
     }
 
     const friends = await db.allAsync(`
@@ -42,7 +42,15 @@ router.get('/:userIdOrUsername', authMiddleware, async (req, res) => {
 
 router.post('/request', authMiddleware, async (req, res) => {
   try {
-    const { friend_id } = req.body;
+    let { friend_id } = req.body;
+
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(friend_id);
+    if (!isUUID) {
+      const u = await db.getAsync('SELECT id FROM users WHERE username = ?', [friend_id]);
+      if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+      friend_id = u.id;
+    }
+
     if (friend_id === req.user.id) return res.status(400).json({ error: 'Não pode adicionar a si mesmo' });
     const exists = await db.getAsync('SELECT id FROM friends WHERE (user_id = ? AND friend_id = ?) OR (user_id = ? AND friend_id = ?)', [req.user.id, friend_id, friend_id, req.user.id]);
     if (exists) return res.status(409).json({ error: 'Solicitação já existe' });
@@ -76,9 +84,18 @@ router.delete('/:friendId', authMiddleware, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-router.get('/suggestions/:userId', authMiddleware, async (req, res) => {
+router.get('/suggestions/:idOrUsername', authMiddleware, async (req, res) => {
   try {
-    const user = await db.getAsync('SELECT city, details FROM users WHERE id = ?', [req.params.userId]);
+    const { idOrUsername } = req.params;
+    let userId = idOrUsername;
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrUsername);
+    if (!isUUID) {
+      const u = await db.getAsync('SELECT id FROM users WHERE username = ?', [idOrUsername]);
+      if (!u) return res.status(404).json({ error: 'Usuário não encontrado' });
+      userId = u.id;
+    }
+
+    const user = await db.getAsync('SELECT city, details FROM users WHERE id = ?', [userId]);
     let myDetails = {};
     try { myDetails = JSON.parse(user.details || '{}'); } catch (e) { }
     const myCity = user.city || '';
@@ -88,10 +105,10 @@ router.get('/suggestions/:userId', authMiddleware, async (req, res) => {
     const myFriends = await db.allAsync(`
       SELECT CASE WHEN user_id = ? THEN friend_id ELSE user_id END as fid
       FROM friends WHERE (user_id = ? OR friend_id = ?) AND status = 'accepted'
-    `, [req.params.userId, req.params.userId, req.params.userId]);
+    `, [userId, userId, userId]);
 
     const myFriendIds = myFriends.map(r => r.fid);
-    const alreadyConnected = [req.params.userId, ...myFriendIds];
+    const alreadyConnected = [userId, ...myFriendIds];
     const placeholders = alreadyConnected.map(() => '?').join(',');
 
     const candidates = await db.allAsync(`

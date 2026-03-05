@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import { useLocation, Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/client';
 
 export default function Scraps() {
+    const { username } = useParams();
     const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const query = new URLSearchParams(location.search);
-    const targetParam = query.get('to') || user.username;
+    const targetParam = username || user.username;
 
     const [scraps, setScraps] = useState([]);
     const [newScrap, setNewScrap] = useState('');
@@ -51,17 +51,19 @@ export default function Scraps() {
 
     if (loading) return <div className="loading">Carregando livro de recados...</div>;
 
+    const isMe = targetUser?.id === user.id;
+
     return (
         <div className="card" style={{ maxWidth: '800px', margin: '0 auto' }}>
             <div className="card-header">
-                Livro de Recados {targetUser?.id === user.id ? 'de ' + user.username : `para ${targetUser?.username}`}
+                Livro de Recados {isMe ? 'de ' + user.username : `para ${targetUser?.username}`}
             </div>
             <div className="card-body">
 
-                {targetUser && targetUser.id !== user.id && (
+                {targetUser && !isMe && (
                     <div style={{ marginBottom: '16px', background: 'var(--pink-light)', padding: '10px', borderRadius: '4px' }}>
                         Escrevendo um recado para <strong>{targetUser.username}</strong>
-                        <button className="btn btn-outline btn-sm" style={{ float: 'right' }} onClick={() => navigate('/scraps')}>Cancelar</button>
+                        <button className="btn btn-outline btn-sm" style={{ float: 'right' }} onClick={() => navigate(`/${user.username}/scraps`)}>Cancelar</button>
                     </div>
                 )}
 
@@ -95,9 +97,9 @@ export default function Scraps() {
                             <div className="scrap-text">{scrap.text}</div>
                             <div className="scrap-actions">
                                 {user.id !== scrap.author_id && (
-                                    <Link to={`/scraps?to=${scrap.author_username}`} className="btn btn-outline btn-sm">Responder</Link>
+                                    <Link to={`/${scrap.author_username}/scraps`} className="btn btn-outline btn-sm">Responder</Link>
                                 )}
-                                {(user.id === targetUser?.id || user.id === scrap.author_id) && (
+                                {(isMe || user.id === scrap.author_id) && (
                                     <button onClick={() => handleDelete(scrap.id)} className="btn btn-gray btn-sm">Excluir</button>
                                 )}
                             </div>
